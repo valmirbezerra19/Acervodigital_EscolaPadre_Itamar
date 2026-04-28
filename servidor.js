@@ -15,7 +15,7 @@ mongoose.connect(process.env.MONGO_URL)
   .then(() => console.log("✅ Conectado ao MongoDB"))
   .catch(err => console.error("❌ Erro MongoDB:", err));
 
-// 2. Configuração do Cloudinary (Usando suas variáveis do Railway)
+// 2. Configuração do Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -43,7 +43,7 @@ const Item = mongoose.model("Item", new mongoose.Schema({
 
 // --- ROTAS ---
 
-// Rota de Teste (Para você ver se funcionou!)
+// Rota de Teste
 app.get("/test-db", (req, res) => {
   res.send("✅ O servidor e o banco de dados estão conversando!");
 });
@@ -58,13 +58,19 @@ app.post("/login", async (req, res) => {
     } else {
       res.status(401).json({ success: false, message: "Erro de login" });
     }
-  } catch (err) { res.status(500).json({ success: false }); }
+  } catch (err) { 
+    res.status(500).json({ success: false }); 
+  }
 });
 
 // Buscar Itens (Galeria)
 app.get("/items", async (req, res) => {
-  const items = await Item.find();
-  res.json(items);
+  try {
+    const items = await Item.find();
+    res.json(items);
+  } catch (err) {
+    res.status(500).send("Erro ao buscar itens");
+  }
 });
 
 // Salvar Novo Item (Com Foto)
@@ -73,25 +79,15 @@ app.post("/items", upload.single("image"), async (req, res) => {
     const newItem = new Item({
       title: req.body.title,
       description: req.body.description,
-      imageUrl: req.file.path // URL que vem do Cloudinary
+      imageUrl: req.file.path
     });
     await newItem.save();
     res.json(newItem);
-  } catch (err) { res.status(500).send("Erro ao salvar item"); }
-});
-
-const PORT = process.env.PORT || 3000;
-app.get("/criar-admin-inicial", async (req, res) => {
-  try {
-    const hashedPassword = await bcrypt.hash("123456", 10);
-    const novoAdmin = new User({
-      email: "admin@escola.com",
-      password: hashedPassword
-    });
-    await novoAdmin.save();
-    res.send("✅ Usuário administrador criado! E-mail: admin@escola.com | Senha: 123456");
-  } catch (err) {
-    res.status(500).send("Erro: " + err.message);
+  } catch (err) { 
+    res.status(500).send("Erro ao salvar item"); 
   }
 });
+
+// Porta do Servidor
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Rodando na porta ${PORT}`));
