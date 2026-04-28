@@ -81,4 +81,17 @@ app.post("/items", upload.single("image"), async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
+app.get("/criar-admin-inicial", async (req, res) => {
+  try {
+    const hashedPassword = await bcrypt.hash("123456", 10);
+    const novoAdmin = new User({
+      email: "admin@escola.com",
+      password: hashedPassword
+    });
+    await novoAdmin.save();
+    res.send("✅ Usuário administrador criado! E-mail: admin@escola.com | Senha: 123456");
+  } catch (err) {
+    res.status(500).send("Erro: " + err.message);
+  }
+});
 app.listen(PORT, () => console.log(`Rodando na porta ${PORT}`));
