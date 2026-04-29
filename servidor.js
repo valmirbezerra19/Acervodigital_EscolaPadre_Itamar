@@ -24,7 +24,10 @@ cloudinary.config({
 
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: { folder: "acervo-escola" }
+  params: { 
+    folder: "acervo-escola",
+    allowed_formats: ["jpg", "png", "jpeg", "gif"]
+  }
 });
 const upload = multer({ storage });
 
@@ -38,6 +41,8 @@ const Item = mongoose.model("Item", new mongoose.Schema({
   title: String,
   description: String,
   imageUrl: String,
+  category: String,
+  year: String,
   date: { type: Date, default: Date.now }
 }));
 
@@ -45,7 +50,7 @@ const Item = mongoose.model("Item", new mongoose.Schema({
 
 // Rota de Teste
 app.get("/test-db", (req, res) => {
-  res.send("✅ O servidor e o banco de dados estão conversando!");
+  res.send("✅ O servidor está ativo!");
 });
 
 // Login
@@ -59,6 +64,7 @@ app.post("/login", async (req, res) => {
       res.status(401).json({ success: false, message: "Erro de login" });
     }
   } catch (err) { 
+    console.error("Erro no login:", err);
     res.status(500).json({ success: false }); 
   }
 });
@@ -66,28 +72,41 @@ app.post("/login", async (req, res) => {
 // Buscar Itens (Galeria)
 app.get("/items", async (req, res) => {
   try {
-    const items = await Item.find();
+    const items = await Item.find().sort({ date: -1 });
     res.json(items);
   } catch (err) {
     res.status(500).send("Erro ao buscar itens");
   }
 });
 
-// Salvar Novo Item (Com Foto)
+// Salvar Novo Item (Com Foto) - AQUI ESTÁ A CORREÇÃO DO LOG
 app.post("/items", upload.single("image"), async (req, res) => {
   try {
+    if (!req.file) {
+        return res.status(400).send("Nenhuma imagem foi enviada.");
+    }
+
     const newItem = new Item({
       title: req.body.title,
       description: req.body.description,
+      category: req.body.category,
+      year: req.body.year,
       imageUrl: req.file.path
     });
+
     await newItem.save();
+    console.log("✅ Item salvo com sucesso:", newItem.title);
     res.json(newItem);
   } catch (err) { 
-    res.status(500).send("Erro ao salvar item"); 
+    // Esta linha abaixo vai mostrar o erro real no Railway agora!
+    console.error("❌ ERRO DETALHADO NO UPLOAD:", err); 
+    res.status(500).json({ 
+        message: "Erro ao salvar item", 
+        detalhe: err.message 
+    }); 
   }
 });
 
 // Porta do Servidor
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`Rodando na porta ${PORT}`));
