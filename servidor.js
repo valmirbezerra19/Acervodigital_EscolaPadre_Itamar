@@ -1,34 +1,4 @@
-require("dotenv").config(); // Garante que as variáveis do Railway sejam lidas
-const express = require("express");
-const cors = require("cors");
-const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
-const cloudinary = require("cloudinary").v2;
-const multer = require("multer");
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
-
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-// 1. Conexão com MongoDB
-mongoose.connect(process.env.MONGO_URL)
-  .then(async () => {
-    console.log("✅ Conectado ao MongoDB");
-    // CRIAÇÃO AUTOMÁTICA DO ADMIN
-    try {
-      const hashPassword = await bcrypt.hash("123456", 10);
-      const User = mongoose.model("User");
-      const jaExiste = await User.findOne({ email: "admin@escola.com" });
-      if (!jaExiste) {
-        await User.create({ email: "admin@escola.com", password: hashPassword });
-        console.log("👤 Usuário Admin criado: admin@escola.com / 123456");
-      }
-    } catch (e) { console.log("Nota: Admin já configurado."); }
-  })
-  .catch(err => console.error("❌ Erro MongoDB:", err));
-
-// 2. Configuração do Cloudinary
+// 2. Configuração do Cloudinary (Ajustada para compatibilidade)
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -38,66 +8,50 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: { 
-    folder: "acervo-escola",
-    allowed_formats: ["jpg", "png", "jpeg", "gif"]
+    folder: "acervo_escola", // Pasta sem hífens para evitar erros de sintaxe
+    resource_type: "auto",
+    public_id: (req, file) => `file_${Date.now()}` // Garante nome único para o arquivo
   }
 });
 const upload = multer({ storage });
 
-// 3. Modelos
-const User = mongoose.model("User", new mongoose.Schema({
-  email: { type: String, unique: true, required: true },
-  password: { type: String, required: true }
-}));
+// ... (Mantenha os modelos iguais) ...
 
-const Item = mongoose.model("Item", new mongoose.Schema({
-  title: String,
-  description: String,
-  imageUrl: String,
-  category: String,
-  year: String,
-  date: { type: Date, default: Date.now }
-}));
-
-// --- ROTAS ---
-
-app.get("/", (req, res) => res.send("Servidor Online"));
-
-app.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-  try {
-    const user = await User.findOne({ email });
-    if (user && (await bcrypt.compare(password, user.password))) {
-      res.json({ success: true });
-    } else {
-      res.status(401).json({ success: false, message: "Usuário ou senha incorretos" });
-    }
-  } catch (err) { res.status(500).json({ success: false }); }
-});
-
-app.get("/items", async (req, res) => {
-  const items = await Item.find().sort({ date: -1 });
-  res.json(items);
-});
+// --- ROTAS AJUSTADAS ---
 
 app.post("/items", upload.single("image"), async (req, res) => {
   try {
-    if (!req.file) return res.status(400).send("Sem imagem.");
+    console.log("Recebendo tentativa de upload...");
+    
+    if (!req.file) {
+      console.log("❌ Arquivo não recebido pelo servidor.");
+      return res.status(400).json({ error: "Arquivo de imagem não encontrado." });
+    }
+
+    console.log("☁️ Imagem enviada ao Cloudinary:", req.file.path);
+
     const newItem = new Item({
       title: req.body.title,
       description: req.body.description,
       category: req.body.category,
       year: req.body.year,
-      imageUrl: req.file.path
+      imageUrl: req.file.path // O link gerado pelo Cloudinary
     });
+
     await newItem.save();
-    console.log("✅ Item salvo!");
+    console.log("✅ Sucesso: Item salvo no banco de dados!");
     res.json(newItem);
+
   } catch (err) { 
-    console.error("❌ ERRO DETALHADO:", JSON.stringify(err, null, 2));
-    res.status(500).json({ error: err.message }); 
+    // TRATAMENTO DE ERRO ROBUSTO PARA O LOG
+    console.log("❌ ERRO NO PROCESSO:");
+    console.error("Mensagem:", err.message);
+    console.error("Stack:", err.stack);
+    
+    res.status(500).json({ 
+      success: false, 
+      error: err.message,
+      detalhe: "Verifique se o Upload Preset está configurado no Cloudinary" 
+    }); 
   }
 });
-
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => console.log(`Rodando na porta ${PORT}`));
