@@ -1,3 +1,4 @@
+require("dotenv").config(); // Garante que as variáveis do Railway sejam lidas
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -17,9 +18,10 @@ mongoose.connect(process.env.MONGO_URL)
     // CRIAÇÃO AUTOMÁTICA DO ADMIN
     try {
       const hashPassword = await bcrypt.hash("123456", 10);
-      const jaExiste = await mongoose.model("User").findOne({ email: "admin@escola.com" });
+      const User = mongoose.model("User");
+      const jaExiste = await User.findOne({ email: "admin@escola.com" });
       if (!jaExiste) {
-        await mongoose.model("User").create({ email: "admin@escola.com", password: hashPassword });
+        await User.create({ email: "admin@escola.com", password: hashPassword });
         console.log("👤 Usuário Admin criado: admin@escola.com / 123456");
       }
     } catch (e) { console.log("Nota: Admin já configurado."); }
