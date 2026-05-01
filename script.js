@@ -103,6 +103,7 @@ async function uploadCloudinary() {
   formData.append("year", ano);
 
   try {
+    // O upload agora é enviado para o seu servidor Railway, que repassa ao Cloudinary
     const res = await fetch(`${API_URL}/items`, {
       method: "POST",
       body: formData,
@@ -110,13 +111,16 @@ async function uploadCloudinary() {
 
     if (res.ok) {
       alert("Foto enviada com sucesso!");
+      fileInput.value = ""; // Limpa o campo após sucesso
       renderAll();
     } else {
-      alert("Erro no upload do servidor.");
+      const errorData = await res.json();
+      console.error("Detalhes do erro no servidor:", errorData);
+      alert("Erro no upload do servidor. Verifique os logs no Railway.");
     }
   } catch (e) {
-    console.error("Erro no upload:", e);
-    alert("Erro de conexão.");
+    console.error("Erro de conexão no upload:", e);
+    alert("Erro de conexão com o servidor Railway.");
   } finally {
     btn.innerText = "ENVIAR";
     btn.disabled = false;
@@ -134,6 +138,7 @@ async function renderAll() {
     const grid = document.getElementById("main-grid");
     if (grid) {
       grid.innerHTML = data
+        .slice() // Cria cópia para não alterar o original
         .reverse()
         .map(
           (item) => `
