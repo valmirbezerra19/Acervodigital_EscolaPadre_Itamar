@@ -1,223 +1,80 @@
+/* --- CONFIGURAÇÕES GERAIS E CORES --- */
 :root {
     --primary: #2c3e50;
     --accent: #3498db;
     --danger: #e74c3c;
+    --success: #2ecc71;
+    --light: #f4f7f6;
     --glass: rgba(255, 255, 255, 0.95);
-    --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    --shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+body { background: var(--light); color: var(--primary); min-height: 100vh; overflow-x: hidden; }
 
-body {
-    background: #f0f2f5;
-    color: var(--primary);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-}
-
+/* --- HEADER E NAVEGAÇÃO --- */
 .glass-header {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 1000;
-    background: var(--glass);
-    backdrop-filter: blur(10px);
-    padding: 10px 0;
-    box-shadow: var(--shadow);
+    position: fixed; top: 0; width: 100%; z-index: 1000;
+    background: var(--glass); backdrop-filter: blur(10px);
+    padding: 12px 0; box-shadow: var(--shadow);
 }
-
-.nav-wrapper {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.logo-area {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-}
-
-.logo-circle {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 2px solid var(--accent);
-}
-
-.logo-circle img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
-
-.nav-menu {
-    display: flex;
-    gap: 5px;
-}
-
+.nav-wrapper { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+.logo-area { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+.logo-circle { width: 50px; height: 50px; border-radius: 50%; overflow: hidden; border: 2px solid var(--accent); }
+.logo-circle img { width: 100%; height: 100%; object-fit: contain; }
+.nav-menu { display: flex; gap: 8px; }
 .nav-btn {
-    background: none;
-    border: none;
-    padding: 8px 12px;
-    cursor: pointer;
-    font-weight: 600;
-    border-radius: 8px;
-    transition: 0.3s;
+    background: none; border: none; padding: 10px 16px; cursor: pointer;
+    font-weight: 600; border-radius: 10px; transition: 0.3s; color: var(--primary);
 }
+.nav-btn.active { background: var(--accent); color: white; }
+.nav-btn:hover:not(.active) { background: rgba(52, 152, 219, 0.1); }
 
-.nav-btn.active {
-    background: var(--accent);
-    color: white;
-}
+/* --- CONTEÚDO PRINCIPAL --- */
+.main-content { margin-top: 100px; padding: 20px; flex: 1; }
+.page { display: none; animation: fadeIn 0.5s ease; max-width: 1200px; margin: 0 auto; }
+.page.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-.main-content {
-    margin-top: 100px;
-    flex: 1;
-    padding-bottom: 40px;
-}
+/* --- CAROUSEL / SLIDE --- */
+.carousel-wrapper { height: 450px; overflow: hidden; position: relative; border-radius: 25px; box-shadow: var(--shadow); margin-bottom: 30px; }
+.carousel-track { display: flex; transition: 0.8s cubic-bezier(0.4, 0, 0.2, 1); height: 100%; }
+.carousel-track img { min-width: 100%; height: 100%; object-fit: cover; }
 
-.page {
-    display: none;
-    animation: fadeIn 0.4s ease;
-}
-
-.page.active {
-    display: block;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.glass-card {
-    background: white;
-    border-radius: 20px;
-    padding: 25px;
-    box-shadow: var(--shadow);
-}
-
-.carousel-wrapper {
-    height: 400px;
-    overflow: hidden;
-    position: relative;
-    border-radius: 20px;
-}
-
-.carousel-track {
-    display: flex;
-    transition: 0.8s ease;
-    height: 100%;
-}
-
-.carousel-track img {
-    min-width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.elegant-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
-}
-
+/* --- GRIDS E GALERIA --- */
+.elegant-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
 .gallery-item {
-    border-radius: 15px;
-    overflow: hidden;
-    background: white;
-    border: 4px solid white;
-    box-shadow: var(--shadow);
-    transition: 0.3s;
+    background: white; border-radius: 20px; overflow: hidden;
+    box-shadow: var(--shadow); transition: 0.4s; border: 5px solid white;
 }
+.gallery-item:hover { transform: translateY(-8px); }
+.gallery-item img { width: 100%; height: 220px; object-fit: cover; }
 
-.gallery-item img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    transition: 0.3s;
+/* --- PAINEL ADMINISTRATIVO (CORREÇÃO CRUCIAL) --- */
+.admin-container { background: white; border-radius: 25px; padding: 30px; box-shadow: var(--shadow); }
+.admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+.admin-grid-selection { 
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); 
+    gap: 15px; max-height: 550px; overflow-y: auto; padding: 15px; background: #f9f9f9; border-radius: 15px;
 }
+.admin-item { position: relative; border-radius: 12px; overflow: hidden; border: 2px solid #ddd; background: white; }
+.admin-item img { width: 100%; height: 90px; object-fit: cover; display: block; }
 
-.gallery-item img:hover {
-    transform: scale(1.05);
-}
-
-/* --- SEÇÃO ADMINISTRATIVA (CORREÇÃO DO CHECKBOX) --- */
-
-.admin-grid-selection {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 15px;
-    max-height: 500px;
-    overflow-y: auto;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 12px;
-}
-
-.admin-item {
-    position: relative;
-    border-radius: 10px;
-    overflow: hidden;
-    border: 2px solid #eee;
-    background: white;
-}
-
-.admin-item img {
-    width: 100%;
-    height: 90px;
-    object-fit: cover;
-    display: block;
-}
-
+/* CHECKBOX - CORREÇÃO PARA O ERRO DA IMAGEM ex1.png */
 .admin-item input[type="checkbox"] {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    width: 22px;
-    height: 22px;
-    accent-color: var(--danger);
-    cursor: pointer;
-    z-index: 50; /* Garante que o clique seja detectado no checkbox */
+    position: absolute; top: 6px; right: 6px; 
+    width: 22px; height: 22px; z-index: 50; 
+    cursor: pointer; accent-color: var(--danger);
 }
+.admin-item div { font-size: 10px; text-align: center; padding: 4px; background: white; font-weight: bold; }
 
-.btn-danger-small {
-    background: var(--danger);
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-}
+/* --- FORMULÁRIOS E BOTÕES --- */
+.input-group { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+input, select { padding: 12px; border: 2px solid #eee; border-radius: 10px; outline: none; transition: 0.3s; }
+input:focus { border-color: var(--accent); }
+.btn-primary { background: var(--accent); color: white; border: none; padding: 12px 25px; border-radius: 10px; cursor: pointer; font-weight: bold; }
+.btn-danger-small { background: var(--danger); color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: bold; }
 
-/* --- RODAPÉ E SOBRE --- */
-
-.school-photo-frame {
-    border-radius: 40px;
-    overflow: hidden;
-    border: 8px solid white;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
-}
-
-.footer-modern {
-    background: var(--primary);
-    color: white;
-    padding: 40px 0 20px;
-    margin-top: 50px;
-}
+/* --- FOOTER --- */
+.footer-modern { background: var(--primary); color: white; padding: 50px 0 20px; margin-top: 60px; }
+.footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
