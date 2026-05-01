@@ -107,14 +107,15 @@ h1, h2 {
     padding-bottom: 40px;
 }
 
-/* Lógica de exibição das páginas */
-.page, .sobre-container {
-    display: none;
-    animation: fadeIn 0.4s ease;
+/* Lógica de Ocultação Estrita: TODAS as seções que agem como páginas */
+#home, #galeria, #calendario, #sobre, #login, .page, .sobre-container {
+    display: none !important;
 }
 
-.page.active, .sobre-container.active {
+/* Exibição apenas quando a classe active estiver presente */
+#home.active, #galeria.active, #calendario.active, #sobre.active, #login.active, .page.active {
     display: block !important;
+    animation: fadeIn 0.4s ease;
 }
 
 @keyframes fadeIn {
