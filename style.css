@@ -117,15 +117,8 @@ h1, h2 {
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .glass-card {
@@ -138,7 +131,6 @@ h1, h2 {
 /* Carrossel e Home */
 .carousel-wrapper {
     height: 600px;
-    /* Ajustado para melhor visualização */
     overflow: hidden;
     position: relative;
     border-radius: 20px;
@@ -310,7 +302,7 @@ h1, h2 {
     text-align: justify;
 }
 
-/* Painel Administrativo */
+/* Painel Administrativo - Ajustado com Zoom e Seleção */
 .admin-main-container {
     border: 2px solid var(--accent);
     margin-top: 20px;
@@ -318,52 +310,54 @@ h1, h2 {
 
 .admin-grid-selection {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 10px;
-    max-height: 400px;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+    max-height: 500px;
     overflow-y: auto;
-    padding: 10px;
+    padding: 20px;
     background: #f9f9f9;
     border-radius: 10px;
 }
 
 /* Custom Scrollbar para o Admin */
-.admin-grid-selection::-webkit-scrollbar {
-    width: 8px;
-}
-
-.admin-grid-selection::-webkit-scrollbar-track {
-    background: #eee;
-    border-radius: 10px;
-}
-
-.admin-grid-selection::-webkit-scrollbar-thumb {
-    background: var(--accent);
-    border-radius: 10px;
-}
+.admin-grid-selection::-webkit-scrollbar { width: 8px; }
+.admin-grid-selection::-webkit-scrollbar-track { background: #eee; border-radius: 10px; }
+.admin-grid-selection::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
 
 .admin-item {
     position: relative;
     border-radius: 8px;
     overflow: hidden;
     border: 1px solid #ddd;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: white;
+}
+
+.admin-item:hover {
+    transform: scale(1.1);
+    z-index: 10;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    border-color: var(--accent);
 }
 
 .admin-item img {
     width: 100%;
-    height: 80px;
+    height: 100px;
     object-fit: cover;
     display: block;
+    cursor: zoom-in;
 }
 
-.admin-item input {
+.admin-item input[type="checkbox"] {
     position: absolute;
     top: 5px;
-    right: 5px;
-    width: 18px;
-    height: 18px;
+    left: 5px;
+    width: 20px;
+    height: 20px;
     accent-color: var(--danger);
     cursor: pointer;
+    z-index: 11;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 /* Footer */
@@ -399,9 +393,7 @@ h1, h2 {
     transition: 0.3s;
 }
 
-.footer-social-icons a:hover {
-    color: var(--accent);
-}
+.footer-social-icons a:hover { color: var(--accent); }
 
 /* Formulários e Botões */
 .input-modern {
@@ -425,9 +417,7 @@ h1, h2 {
     transition: 0.3s;
 }
 
-.btn-primary:hover {
-    filter: brightness(1.1);
-}
+.btn-primary:hover { filter: brightness(1.1); }
 
 .btn-danger-small {
     background: var(--danger);
@@ -439,36 +429,13 @@ h1, h2 {
     font-weight: bold;
 }
 
-/* --- MEDIA QUERIES (Responsividade) --- */
+/* --- MEDIA QUERIES --- */
 @media (max-width: 768px) {
-    .nav-wrapper {
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .brand-text {
-        text-align: center;
-    }
-
-    .main-content {
-        margin-top: 160px;
-    }
-
-    .sobre-topo {
-        grid-template-columns: 1fr;
-    }
-
-    .carousel-wrapper {
-        height: 350px;
-    }
-
-    .footer-grid {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .gallery-filter-bar {
-        flex-direction: column;
-        align-items: stretch;
-    }
+    .nav-wrapper { flex-direction: column; gap: 15px; }
+    .brand-text { text-align: center; }
+    .main-content { margin-top: 160px; }
+    .sobre-topo { grid-template-columns: 1fr; }
+    .carousel-wrapper { height: 350px; }
+    .footer-grid { flex-direction: column; text-align: center; }
+    .gallery-filter-bar { flex-direction: column; align-items: stretch; }
 }
