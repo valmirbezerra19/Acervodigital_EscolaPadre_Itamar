@@ -107,13 +107,14 @@ h1, h2 {
     padding-bottom: 40px;
 }
 
-.page {
+/* Lógica de exibição das páginas */
+.page, .sobre-container {
     display: none;
     animation: fadeIn 0.4s ease;
 }
 
-.page.active {
-    display: block;
+.page.active, .sobre-container.active {
+    display: block !important;
 }
 
 @keyframes fadeIn {
@@ -292,6 +293,12 @@ h1, h2 {
 }
 
 /* Página Sobre */
+.sobre-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
 .sobre-topo {
     display: grid;
     grid-template-columns: 1.2fr 0.8fr;
