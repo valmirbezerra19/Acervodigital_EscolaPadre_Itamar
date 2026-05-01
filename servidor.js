@@ -1,9 +1,9 @@
-require("dotenv").config();
+require("dotenv").config(); // 1. Carrega as variáveis do .env
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
-const cloudinary = require("cloudinary").v2;
+const cloudinary = require("cloudinary").v2; // 2. Define o cloudinary antes de usar
 const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 
@@ -52,26 +52,34 @@ const Item = mongoose.model("Item", ItemSchema);
 // Rota de Teste
 app.get("/", (req, res) => res.send("Servidor do Acervo está Online!"));
 
-// Rota de Login (ADICIONADA PARA FUNCIONAR COM O SCRIPT.JS)
+// Rota de Login (Essencial para o efetuarLogin do script.js)
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
+  // Credenciais padrão solicitadas
   if (email === "admin@escola.com" && password === "123456") {
     return res.json({ success: true });
   } else {
-    return res.status(401).json({ success: false, message: "Credenciais inválidas" });
+    return res.status(401).json({ success: false, message: "E-mail ou senha incorretos." });
   }
 });
 
 // Rota de Listagem
 app.get("/items", async (req, res) => {
-  const items = await Item.find();
-  res.json(items);
+  try {
+    const items = await Item.find();
+    res.json(items);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// Rota de Upload
+// Rota de Upload de Itens
 app.post("/items", upload.single("image"), async (req, res) => {
   try {
-    if (!req.file) return res.status(400).json({ error: "Arquivo não encontrado" });
+    if (!req.file) {
+      return res.status(400).json({ error: "Arquivo de imagem não encontrado." });
+    }
+
     const newItem = new Item({
       title: req.body.title,
       description: req.body.description,
@@ -79,13 +87,17 @@ app.post("/items", upload.single("image"), async (req, res) => {
       year: req.body.year,
       imageUrl: req.file.path 
     });
+
     await newItem.save();
     res.json(newItem);
   } catch (err) { 
+    console.error("Erro no processo:", err.message);
     res.status(500).json({ success: false, error: err.message }); 
   }
 });
 
-// --- INICIALIZAÇÃO ---
+// --- INICIALIZAÇÃO DO SERVIDOR ---
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Servidor rodando na porta ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor rodando na porta ${PORT}`);
+});
