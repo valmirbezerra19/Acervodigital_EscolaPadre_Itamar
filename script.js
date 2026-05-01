@@ -1,267 +1,146 @@
-const CONFIG = {
-  db: "AcervoPadreItamar_v12",
-  store: "arquivos",
-  cloud: "defxlhmma",
-  preset: "acervo_itamar",
-};
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Acervo Digital | Padre Itamar</title>
 
-// ENDEREÇO DO SEU NOVO SERVIDOR NO RAILWAY
-const API_URL = "https://agile-cooperation-production.up.railway.app";
+<link rel="stylesheet" href="style.css" />
+<link rel="icon" type="image/png" href="img/logo.png" />
 
-let db,
-  currentSlide = 0,
-  filtroCatAtual = "TODAS",
-  filtroAnoAtual = "TODOS";
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
-const EVENTOS_ESCOLARES = [
-  { data: "2026-02-09", titulo: "Início do Ano Letivo", cat: "ACADÊMICO" },
-  { data: "2026-03-27", titulo: "Reunião Pedagógica", cat: "PEDAGÓGICO" },
-  { data: "2026-05-10", titulo: "Homenagem Dia das Mães", cat: "SOCIAL" },
-  { data: "2026-06-20", titulo: "Festa Junina", cat: "EVENTO" },
-  { data: "2026-09-07", titulo: "Desfile de Independência", cat: "CÍVICO" },
-  { data: "2026-11-20", titulo: "Mostra Cultural 50 Anos", cat: "CULTURAL" },
-  { data: "2026-12-16", titulo: "Encerramento e Formatura", cat: "SOLENIDADE" },
-];
+</head>
 
-// Inicialização do Banco de Dados Local
-const req = indexedDB.open(CONFIG.db, 1);
-req.onupgradeneeded = (e) =>
-  e.target.result.createObjectStore(CONFIG.store, { keyPath: "id" });
+<body>
 
-req.onsuccess = (e) => {
-  db = e.target.result;
-  init();
-};
+<header class="glass-header">
+<nav class="container nav-wrapper">
 
-function init() {
-  setupYears();
-  renderAll();
-  setInterval(() => moveSlide(1), 5000);
-  setInterval(updateClock, 1000);
-}
+<div class="logo-area" onclick="showPage('home')">
+<div class="logo-circle">
+<img src="img/logo.png" id="main-logo-img">
+</div>
+<div class="brand-text">
+<h1>ACERVO <span>DIGITAL</span></h1>
+<p>E.E.F.M Padre Itamar Luiz da Costa</p>
+</div>
+</div>
 
-// --- FUNÇÕES DE AUTENTICAÇÃO ---
+<div class="nav-menu">
+<button onclick="showPage('home')" class="nav-btn active" id="btn-home">INÍCIO</button>
+<button onclick="showPage('galeria')" class="nav-btn" id="btn-galeria">GALERIA</button>
+<button onclick="showPage('calendario')" class="nav-btn" id="btn-calendario">CALENDÁRIO</button>
+<button onclick="showPage('sobre')" class="nav-btn" id="btn-sobre">SOBRE</button>
+<button onclick="showPage('login')" class="admin-icon"><i class="fas fa-shield-alt"></i></button>
+</div>
 
-async function efetuarLogin() {
-  const email = document.getElementById("adm-email").value;
-  const pass = document.getElementById("adm-pass").value;
-  const btn = document.getElementById("btn-login-action");
+</nav>
+</header>
 
-  btn.innerText = "VERIFICANDO...";
-  btn.disabled = true;
+<main class="main-content">
 
-  try {
-    const response = await fetch(`${API_URL}/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password: pass }),
-    });
+<!-- HOME -->
+<section id="home" class="page active">
+<div class="container">
 
-    const result = await response.json();
+<div class="carousel-wrapper glass-card">
+<div class="carousel-track" id="track-home"></div>
+</div>
 
-    if (result.success) {
-      document.getElementById("login-box").style.display = "none";
-      document.getElementById("admin-panel").style.display = "block";
-      localStorage.setItem("admin_logado", "true");
-      renderAll();
-      alert("Login realizado com sucesso!");
-    } else {
-      alert("E-mail ou senha incorretos.");
-    }
-  } catch (error) {
-    alert("Erro ao conectar com o servidor Railway.");
-    console.error(error);
-  } finally {
-    btn.innerText = "ENTRAR";
-    btn.disabled = false;
-  }
-}
+<div class="home-cards-grid">
+<div class="glass-card clickable-card" onclick="showPage('galeria')">
+<i class="fas fa-landmark"></i>
+<h3>Patrimônio Histórico</h3>
+</div>
 
-function logout() {
-  localStorage.removeItem("admin_logado");
-  location.reload();
-}
+<div class="glass-card clickable-card" onclick="showPage('calendario')">
+<i class="fas fa-graduation-cap"></i>
+<h3>Calendário Escolar</h3>
+</div>
 
-// --- FUNÇÕES DE UPLOAD ---
+<div class="glass-card clickable-card" onclick="showPage('sobre')">
+<i class="fas fa-users"></i>
+<h3>Nossa História</h3>
+</div>
+</div>
 
-async function uploadCloudinary() {
-  const fileInput = document.getElementById("new-img-file");
-  const cat = document.getElementById("new-img-cat").value;
-  const ano = document.getElementById("new-img-year").value;
-  const btn = document.getElementById("btn-upload");
+</div>
+</section>
 
-  if (!fileInput.files.length) return alert("Selecione fotos");
+<!-- GALERIA -->
+<section id="galeria" class="page container">
+<div class="elegant-grid" id="main-grid"></div>
+</section>
 
-  // --- ALTERAÇÃO: VALIDAÇÃO DE TAMANHO (50MB) ---
-  const file = fileInput.files[0];
-  const maxSize = 50 * 1024 * 1024; // 50MB em bytes
+<!-- CALENDARIO -->
+<section id="calendario" class="page container">
+<div id="calendar-list"></div>
+</section>
 
-  if (file.size > maxSize) {
-    alert("Este arquivo ultrapassa o tamanho permitido de 50MB. Por favor, escolha um arquivo menor.");
-    fileInput.value = ""; 
-    return; // Interrompe o envio
-  }
-  // ----------------------------------------------
+<!-- SOBRE -->
+<section id="sobre" class="page container">
+<div class="glass-card">
+<img id="img-sobre-display" src="escola.jpg" style="width:100%;border-radius:15px;">
+</div>
+</section>
 
-  btn.innerText = "ENVIANDO...";
-  btn.disabled = true;
+<!-- ADMIN -->
+<section id="login" class="page container">
 
-  const formData = new FormData();
-  formData.append("image", file);
-  formData.append("title", `${cat} - ${ano}`);
-  formData.append("description", `Categoria: ${cat}`);
-  formData.append("category", cat);
-  formData.append("year", ano);
+<div id="login-box" class="glass-card">
+<input id="adm-email" placeholder="email">
+<input id="adm-pass" type="password" placeholder="senha">
+<button onclick="efetuarLogin()" class="btn-primary">ENTRAR</button>
+</div>
 
-  try {
-    const res = await fetch(`${API_URL}/items`, {
-      method: "POST",
-      body: formData,
-    });
+<div id="admin-panel" style="display:none">
 
-    if (res.ok) {
-      alert("Foto enviada com sucesso!");
-      fileInput.value = ""; 
-      renderAll();
-    } else {
-      const errorData = await res.json();
-      console.error("Detalhes do erro no servidor:", errorData);
-      alert("Erro no upload do servidor. Verifique os logs no Railway.");
-    }
-  } catch (e) {
-    console.error("Erro de conexão no upload:", e);
-    alert("Erro de conexão com o servidor Railway.");
-  } finally {
-    btn.innerText = "ENVIAR";
-    btn.disabled = false;
-  }
-}
+<button onclick="alterarMinhaSenha()" class="btn-admin">MUDAR SENHA</button>
+<button onclick="cadastrarNovoAdmin()" class="btn-admin">NOVO USUÁRIO</button>
+<button onclick="logout()" class="btn-admin">SAIR</button>
 
-// --- RENDERIZAÇÃO ---
+<div class="glass-card">
+<input type="file" id="new-img-file" multiple>
 
-async function renderAll() {
-  try {
-    const response = await fetch(`${API_URL}/items`);
-    const data = await response.json();
+<select id="new-img-cat">
+<option value="SLIDE (HOME)">SLIDE (HOME)</option>
+<option value="LOGO">LOGO</option>
+<option value="FOTO ESCOLA">FOTO ESCOLA</option>
+</select>
 
-    // --- SEPARAÇÃO POR CATEGORIAS ---
-    const catsGaleria = ["ATIVIDADES", "DESFILE", "EVENTOS", "INFRAESTRUTURA", "HOMENAGEM"];
-    const itensGaleria = data.filter(item => catsGaleria.includes(item.category.toUpperCase()));
-    
-    // Filtra as últimas 5 para o Slide
-    const itensSlide = data.filter(item => item.category === "SLIDE (HOME)").slice(-5);
-    
-    // Pega a mais recente para itens únicos
-    const itemLogo = data.slice().reverse().find(item => item.category === "LOGO");
-    const itemFavicon = data.slice().reverse().find(item => item.category === "FAVICON");
-    const itemSobre = data.slice().reverse().find(item => item.category === "FOTO SOBRE");
+<select id="new-img-year"></select>
 
-    // 1. Galeria
-    const grid = document.getElementById("main-grid");
-    if (grid) {
-      grid.innerHTML = itensGaleria
-        .slice() 
-        .reverse()
-        .map(
-          (item) => `
-          <div class="gallery-item">
-            <img src="${item.imageUrl}" loading="lazy" onclick="window.open('${item.imageUrl}')">
-            <div style="padding:15px">
-              <p style="font-size:0.75rem; font-weight:600; color:#2c3e50">${item.title}</p>
-            </div>
-          </div>`,
-        )
-        .join("");
-    }
+<button onclick="uploadCloudinary()" class="btn-primary">ENVIAR</button>
+</div>
 
-    // 2. Carrossel
-    const track = document.getElementById("track-home");
-    if (track) {
-      track.innerHTML =
-        itensSlide.length > 0
-          ? itensSlide.map((s) => `<img src="${s.imageUrl}">`).join("")
-          : `<img src="escola.jpg">`;
-    }
+<button onclick="excluirSelecionados()" class="btn-admin">EXCLUIR</button>
 
-    // 3. Atualizar Mídias de Identidade (Logo, Favicon, Sobre)
-    const logoImg = document.getElementById("img-logo");
-    if (logoImg && itemLogo) logoImg.src = itemLogo.imageUrl;
+<div id="lista-admin" class="admin-grid-selection"></div>
 
-    const faviconLink = document.querySelector("link[rel*='icon']");
-    if (faviconLink && itemFavicon) faviconLink.href = itemFavicon.imageUrl;
+</div>
 
-    const imgSobre = document.getElementById("img-sobre");
-    if (imgSobre && itemSobre) imgSobre.src = itemSobre.imageUrl;
+</section>
 
-    // 4. Painel Admin (Lista tudo para gestão)
-    const adminList = document.getElementById("lista-admin");
-    if (adminList) {
-      adminList.innerHTML = data
-        .slice()
-        .reverse()
-        .map(
-          (item) => `
-          <div class="admin-item">
-            <img src="${item.imageUrl}">
-            <div style="font-size:9px; text-align:center; padding: 2px;">
-                ${item.category} - ${item.year}
-            </div>
-          </div>`,
-        )
-        .join("");
-    }
-  } catch (err) {
-    console.error("Erro ao renderizar dados do Railway:", err);
-  }
+</main>
 
-  // 5. Calendário
-  const calList = document.getElementById("calendar-list");
-  if (calList) {
-    calList.innerHTML = EVENTOS_ESCOLARES.map((ev) => {
-      const d = new Date(ev.data + "T00:00:00");
-      return `
-          <div class="event-row">
-            <div class="event-date">${d.getDate()}<br><small>${d.toLocaleDateString("pt-BR", { month: "short" }).toUpperCase()}</small></div>
-            <div>
-              <h4 style="margin:0">${ev.titulo}</h4>
-              <small style="color:var(--accent)">${ev.cat}</small>
-            </div>
-          </div>`;
-    }).join("");
-  }
-}
+<footer class="footer-modern">
+<div class="container footer-grid">
 
-// --- UTILITÁRIOS ---
+<div>
+<h3>ESCOLA PADRE ITAMAR</h3>
+<p>Imaruí - SC</p>
+<p>Desenvolvido por Valmir Ap. Bezerra</p>
+</div>
 
-function updateClock() {
-  const clock = document.getElementById("cal-clock");
-  if (clock) clock.innerText = new Date().toLocaleTimeString("pt-BR");
-}
+<div>
+<a href="https://wa.me/5548998118259"><i class="fab fa-whatsapp"></i></a>
+</div>
 
-function showPage(id) {
-  document.querySelectorAll(".page").forEach((p) => p.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-  document.querySelectorAll(".nav-btn").forEach((b) => b.classList.remove("active"));
-  document.getElementById("btn-" + id)?.classList.add("active");
-  window.scrollTo(0, 0);
-  renderAll();
-}
+</div>
+</footer>
 
-function setupYears() {
-  let opts = "";
-  for (let i = 2026; i >= 1970; i--)
-    opts += `<option value="${i}">${i}</option>`;
-  const selector = document.getElementById("year-selector");
-  const uploadSelector = document.getElementById("new-img-year");
-  if (selector)
-    selector.innerHTML = '<option value="TODOS">Todos os Anos</option>' + opts;
-  if (uploadSelector) uploadSelector.innerHTML = opts;
-}
-
-function moveSlide(step) {
-  const track = document.getElementById("track-home");
-  const slides = track?.querySelectorAll("img");
-  if (!slides || slides.length <= 1) return;
-  currentSlide = (currentSlide + step + slides.length) % slides.length;
-  track.style.transform = `translateX(-${currentSlide * 100}%)`;
-}
+<script src="script.js"></script>
+</body>
+</html>
