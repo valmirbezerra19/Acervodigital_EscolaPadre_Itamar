@@ -291,3 +291,10 @@ function updateClock(){
   const c=document.getElementById("cal-clock");
   if(c) c.innerText=new Date().toLocaleTimeString("pt-BR");
 }
+
+fetch('https://agile-cooperation-production.up.railway.app/items', { method: 'OPTIONS' })
+  .then(res => {
+    console.log("Métodos permitidos:", res.headers.get('access-control-allow-methods'));
+    console.log("Todos os headers:", Object.fromEntries(res.headers.entries()));
+  })
+  .catch(err => console.error("Erro no teste:", err));
