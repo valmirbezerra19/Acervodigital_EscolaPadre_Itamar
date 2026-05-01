@@ -121,7 +121,6 @@ h1, h2 {
         opacity: 0;
         transform: translateY(10px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
@@ -137,8 +136,8 @@ h1, h2 {
 
 /* Carrossel e Home */
 .carousel-wrapper {
-    height: 600px;
-    /* Ajustado para melhor visualização */
+    height: 500px;
+    max-height: 70vh;
     overflow: hidden;
     position: relative;
     border-radius: 20px;
@@ -238,10 +237,11 @@ h1, h2 {
 
 .gallery-item img {
     width: 100%;
-    height: 200px;
+    height: 250px;
     object-fit: cover;
     display: block;
     transition: transform 0.3s ease;
+    cursor: zoom-in;
 }
 
 .gallery-item img:hover {
@@ -279,6 +279,16 @@ h1, h2 {
     font-weight: bold;
     margin-right: 15px;
     line-height: 1.2;
+}
+
+#cal-clock {
+    font-family: 'Courier New', Courier, monospace;
+    background: #2c3e50;
+    color: #3498db !important;
+    padding: 5px 15px;
+    border-radius: 8px;
+    letter-spacing: 2px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
 }
 
 /* Página Sobre */
@@ -327,7 +337,6 @@ h1, h2 {
     border-radius: 10px;
 }
 
-/* Custom Scrollbar para o Admin */
 .admin-grid-selection::-webkit-scrollbar {
     width: 8px;
 }
@@ -347,6 +356,12 @@ h1, h2 {
     border-radius: 8px;
     overflow: hidden;
     border: 1px solid #ddd;
+    transition: transform 0.2s;
+}
+
+.admin-item:hover {
+    transform: scale(1.02);
+    border-color: var(--danger);
 }
 
 .admin-item img {
@@ -356,14 +371,15 @@ h1, h2 {
     display: block;
 }
 
-.admin-item input {
+.admin-item input[type="checkbox"] {
     position: absolute;
     top: 5px;
     right: 5px;
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     accent-color: var(--danger);
     cursor: pointer;
+    z-index: 2;
 }
 
 /* Footer */
@@ -456,6 +472,12 @@ h1, h2 {
 
     .sobre-topo {
         grid-template-columns: 1fr;
+    }
+
+    .school-photo-frame {
+        border-radius: 20px;
+        order: -1;
+        margin-bottom: 20px;
     }
 
     .carousel-wrapper {
