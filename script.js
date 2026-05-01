@@ -1,179 +1,233 @@
-// CONFIGURAÇÕES GLOBAIS
-const API_URL = "https://backend-acervo-production.up.railway.app/api/fotos"; 
-const CLOUD_CONFIG = { cloud: "defxlhmma", preset: "acervo_itamar" };
+const CONFIG = {
+  db: "AcervoPadreItamar_v12",
+  store: "arquivos",
+  cloud: "defxlhmma",
+  preset: "acervo_itamar",
+};
 
-let todasAsFotos = [],
-    currentSlide = 0,
-    filtroCatAtual = "TODAS",
-    filtroAnoAtual = "TODOS";
+// ENDEREÇO DO SEU NOVO SERVIDOR NO RAILWAY
+const API_URL = "https://agile-cooperation-production.up.railway.app";
 
-// INICIALIZAÇÃO COMPLETA
+let db,
+  currentSlide = 0,
+  filtroCatAtual = "TODAS",
+  filtroAnoAtual = "TODOS";
+
+const EVENTOS_ESCOLARES = [
+  { data: "2026-02-09", titulo: "Início do Ano Letivo", cat: "ACADÊMICO" },
+  { data: "2026-03-27", titulo: "Reunião Pedagógica", cat: "PEDAGÓGICO" },
+  { data: "2026-05-10", titulo: "Homenagem Dia das Mães", cat: "SOCIAL" },
+  { data: "2026-06-20", titulo: "Festa Junina", cat: "EVENTO" },
+  { data: "2026-09-07", titulo: "Desfile de Independência", cat: "CÍVICO" },
+  { data: "2026-11-20", titulo: "Mostra Cultural 50 Anos", cat: "CULTURAL" },
+  { data: "2026-12-16", titulo: "Encerramento e Formatura", cat: "SOLENIDADE" },
+];
+
+// Inicialização do Banco de Dados Local
+const req = indexedDB.open(CONFIG.db, 1);
+req.onupgradeneeded = (e) =>
+  e.target.result.createObjectStore(CONFIG.store, { keyPath: "id" });
+
+req.onsuccess = (e) => {
+  db = e.target.result;
+  init();
+};
+
 function init() {
-    setupYears();
-    fetchFotos(); // Busca dados do MongoDB via Railway
-    setInterval(() => moveSlide(1), 5000); // Slide Automático
-    setInterval(updateClock, 1000); // Relógio em tempo real
+  setupYears();
+  renderAll();
+  setInterval(() => moveSlide(1), 5000);
+  setInterval(updateClock, 1000);
+}
 
-    // Observador do Firebase para Login
-    firebase.auth().onAuthStateChanged((user) => {
-        const loginBox = document.getElementById("login-box");
-        const adminPanel = document.getElementById("admin-panel");
-        if (user) {
-            if(loginBox) loginBox.style.display = "none";
-            if(adminPanel) adminPanel.style.display = "block";
-            renderAll();
-        } else {
-            if(loginBox) loginBox.style.display = "block";
-            if(adminPanel) adminPanel.style.display = "none";
-        }
+// --- FUNÇÕES DE AUTENTICAÇÃO ---
+
+async function efetuarLogin() {
+  const email = document.getElementById("adm-email").value;
+  const pass = document.getElementById("adm-pass").value;
+  const btn = document.getElementById("btn-login-action");
+
+  btn.innerText = "VERIFICANDO...";
+  btn.disabled = true;
+
+  try {
+    const response = await fetch(`${API_URL}/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password: pass }),
     });
-}
 
-// BUSCAR DADOS DA API
-async function fetchFotos() {
-    try {
-        const res = await fetch(API_URL);
-        todasAsFotos = await res.json();
-        renderAll();
-    } catch (err) {
-        console.error("Erro na API Railway:", err);
+    const result = await response.json();
+
+    if (result.success) {
+      document.getElementById("login-box").style.display = "none";
+      document.getElementById("admin-panel").style.display = "block";
+      localStorage.setItem("admin_logado", "true");
+      renderAll();
+      alert("Login realizado com sucesso!");
+    } else {
+      alert("E-mail ou senha incorretos.");
     }
+  } catch (error) {
+    alert("Erro ao conectar com o servidor Railway.");
+    console.error(error);
+  } finally {
+    btn.innerText = "ENTRAR";
+    btn.disabled = false;
+  }
 }
 
-// NAVEGAÇÃO ENTRE PÁGINAS (RESTUARADA)
-function showPage(id) {
-    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-    document.getElementById(id)?.classList.add("active");
-    
-    document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
-    document.getElementById("btn-" + id)?.classList.add("active");
-    
-    window.scrollTo(0, 0);
-    renderAll();
+function logout() {
+  localStorage.removeItem("admin_logado");
+  location.reload();
 }
 
-// RENDERIZAÇÃO DE TODAS AS SEÇÕES
-function renderAll() {
-    const data = todasAsFotos;
+// --- FUNÇÕES DE UPLOAD ---
 
-    // 1. Logo e Sobre
-    const logo = data.filter(x => x.cat === "LOGO").pop();
-    if (logo && document.getElementById("main-logo-img")) {
-        document.getElementById("main-logo-img").src = logo.url;
+async function uploadCloudinary() {
+  const fileInput = document.getElementById("new-img-file");
+  const cat = document.getElementById("new-img-cat").value;
+  const ano = document.getElementById("new-img-year").value;
+  const btn = document.getElementById("btn-upload");
+
+  if (!fileInput.files.length) return alert("Selecione fotos");
+
+  btn.innerText = "ENVIANDO...";
+  btn.disabled = true;
+
+  const formData = new FormData();
+  formData.append("image", fileInput.files[0]);
+  formData.append("title", `${cat} - ${ano}`);
+  formData.append("description", `Categoria: ${cat}`);
+  formData.append("category", cat);
+  formData.append("year", ano);
+
+  try {
+    const res = await fetch(`${API_URL}/items`, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (res.ok) {
+      alert("Foto enviada com sucesso!");
+      renderAll();
+    } else {
+      alert("Erro no upload do servidor.");
     }
+  } catch (e) {
+    console.error("Erro no upload:", e);
+    alert("Erro de conexão.");
+  } finally {
+    btn.innerText = "ENVIAR";
+    btn.disabled = false;
+  }
+}
 
-    // 2. Galeria Pública
+// --- RENDERIZAÇÃO ---
+
+async function renderAll() {
+  try {
+    const response = await fetch(`${API_URL}/items`);
+    const data = await response.json();
+
+    // 1. Galeria
     const grid = document.getElementById("main-grid");
     if (grid) {
-        const catsGaleria = ["ATIVIDADES", "DESFILE", "EVENTOS", "INFRAESTRUTURA", "HOMENAGEM"];
-        grid.innerHTML = data
-            .filter(x => catsGaleria.includes(x.cat))
-            .filter(x => filtroCatAtual === "TODAS" || x.cat === filtroCatAtual)
-            .filter(x => filtroAnoAtual === "TODOS" || x.ano === filtroAnoAtual)
-            .reverse()
-            .map(item => `
-                <div class="gallery-item" onclick="window.open('${item.url}', '_blank')">
-                    <img src="${item.url}" loading="lazy">
-                    <div style="padding:15px">
-                        <span style="font-size:12px; background:#3498db; color:white; padding:2px 8px; border-radius:4px">${item.ano}</span>
-                        <p style="font-weight:bold; margin-top:5px">${item.cat}</p>
-                    </div>
-                </div>`).join("");
+      grid.innerHTML = data
+        .reverse()
+        .map(
+          (item) => `
+          <div class="gallery-item">
+            <img src="${item.imageUrl}" loading="lazy" onclick="window.open('${item.imageUrl}')">
+            <div style="padding:15px">
+              <p style="font-size:0.75rem; font-weight:600; color:#2c3e50">${item.title}</p>
+            </div>
+          </div>`,
+        )
+        .join("");
     }
 
-    // 3. Painel Admin (Seleção para Excluir)
-    const adminList = document.getElementById("lista-admin");
-    if (adminList) {
-        adminList.innerHTML = data.slice().reverse().map(item => `
-            <div class="admin-item">
-                <input type="checkbox" class="delete-checkbox" data-id="${item._id}">
-                <img src="${item.url}">
-                <div style="font-size:9px; text-align:center">${item.cat} | ${item.ano}</div>
-            </div>`).join("");
-    }
-
-    // 4. Slides
+    // 2. Carrossel
     const track = document.getElementById("track-home");
     if (track) {
-        const slides = data.filter(x => x.cat === "SLIDE");
-        track.innerHTML = slides.length > 0 ? slides.map(s => `<img src="${s.url}">`).join("") : `<img src="escola.jpg">`;
+      const slides = data.slice(-5);
+      track.innerHTML =
+        slides.length > 0
+          ? slides.map((s) => `<img src="${s.imageUrl}">`).join("")
+          : `<img src="escola.jpg">`;
     }
+
+    // 3. Painel Admin
+    const adminList = document.getElementById("lista-admin");
+    if (adminList) {
+      adminList.innerHTML = data
+        .map(
+          (item) => `
+          <div class="admin-item">
+            <img src="${item.imageUrl}">
+            <div style="font-size:9px; text-align:center; padding: 2px;">
+                ${item.title}
+            </div>
+          </div>`,
+        )
+        .join("");
+    }
+  } catch (err) {
+    console.error("Erro ao renderizar dados do Railway:", err);
+  }
+
+  // 4. Calendário
+  const calList = document.getElementById("calendar-list");
+  if (calList) {
+    calList.innerHTML = EVENTOS_ESCOLARES.map((ev) => {
+      const d = new Date(ev.data + "T00:00:00");
+      return `
+          <div class="event-row">
+            <div class="event-date">${d.getDate()}<br><small>${d.toLocaleDateString("pt-BR", { month: "short" }).toUpperCase()}</small></div>
+            <div>
+              <h4 style="margin:0">${ev.titulo}</h4>
+              <small style="color:var(--accent)">${ev.cat}</small>
+            </div>
+          </div>`;
+    }).join("");
+  }
 }
 
-// EXCLUIR DO MONGODB (CORRIGIDO)
-async function excluirSelecionados() {
-    const selecionados = document.querySelectorAll(".delete-checkbox:checked");
-    if (selecionados.length === 0) return alert("Selecione fotos para excluir.");
-    
-    if (!confirm("Excluir permanentemente do banco de dados?")) return;
+// --- UTILITÁRIOS ---
 
-    for (let cb of selecionados) {
-        const id = cb.getAttribute("data-id");
-        await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-    }
-    fetchFotos();
-}
-
-// UPLOAD (CLOUDINARY + RAILWAY)
-async function uploadCloudinary() {
-    const files = document.getElementById("new-img-file").files;
-    const cat = document.getElementById("new-img-cat").value;
-    const ano = document.getElementById("new-img-year").value;
-    const btn = document.getElementById("btn-upload");
-
-    if (!files.length) return alert("Selecione fotos.");
-    btn.disabled = true; btn.innerText = "ENVIANDO...";
-
-    for (let f of files) {
-        const fd = new FormData();
-        fd.append("file", f);
-        fd.append("upload_preset", CLOUD_CONFIG.preset);
-        
-        const resCloud = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_CONFIG.cloud}/image/upload`, { method: "POST", body: fd });
-        const d = await resCloud.json();
-        
-        await fetch(API_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ url: d.secure_url, cat, ano })
-        });
-    }
-    btn.disabled = false; btn.innerText = "ENVIAR";
-    fetchFotos();
-}
-
-// FUNÇÕES DE APOIO
 function updateClock() {
-    const clock = document.getElementById("cal-clock");
-    if (clock) clock.innerText = new Date().toLocaleTimeString("pt-BR");
+  const clock = document.getElementById("cal-clock");
+  if (clock) clock.innerText = new Date().toLocaleTimeString("pt-BR");
 }
 
-function moveSlide(step) {
-    const track = document.getElementById("track-home");
-    const slides = track?.querySelectorAll("img");
-    if (!slides || slides.length <= 1) return;
-    currentSlide = (currentSlide + step + slides.length) % slides.length;
-    track.style.transform = `translateX(-${currentSlide * 100}%)`;
+function showPage(id) {
+  document
+    .querySelectorAll(".page")
+    .forEach((p) => p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  document
+    .querySelectorAll(".nav-btn")
+    .forEach((b) => b.classList.remove("active"));
+  document.getElementById("btn-" + id)?.classList.add("active");
+  window.scrollTo(0, 0);
+  renderAll();
 }
 
 function setupYears() {
-    let opts = "";
-    for (let i = 2026; i >= 1970; i--) opts += `<option value="${i}">${i}</option>`;
-    const s1 = document.getElementById("year-selector");
-    const s2 = document.getElementById("new-img-year");
-    if(s1) s1.innerHTML = '<option value="TODOS">Todos os Anos</option>' + opts;
-    if(s2) s2.innerHTML = opts;
+  let opts = "";
+  for (let i = 2026; i >= 1970; i--)
+    opts += `<option value="${i}">${i}</option>`;
+  const selector = document.getElementById("year-selector");
+  const uploadSelector = document.getElementById("new-img-year");
+  if (selector)
+    selector.innerHTML = '<option value="TODOS">Todos os Anos</option>' + opts;
+  if (uploadSelector) uploadSelector.innerHTML = opts;
 }
 
-// LOGIN FIREBASE
-async function efetuarLogin() {
-    const email = document.getElementById("adm-email").value;
-    const pass = document.getElementById("adm-pass").value;
-    try {
-        await firebase.auth().signInWithEmailAndPassword(email, pass);
-    } catch (e) { alert("Erro de acesso."); }
+function moveSlide(step) {
+  const track = document.getElementById("track-home");
+  const slides = track?.querySelectorAll("img");
+  if (!slides || slides.length <= 1) return;
+  currentSlide = (currentSlide + step + slides.length) % slides.length;
+  track.style.transform = `translateX(-${currentSlide * 100}%)`;
 }
-
-function logout() { firebase.auth().signOut().then(() => location.reload()); }
-
-document.addEventListener("DOMContentLoaded", init);
