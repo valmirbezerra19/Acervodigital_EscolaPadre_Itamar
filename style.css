@@ -121,7 +121,6 @@ h1, h2 {
         opacity: 0;
         transform: translateY(10px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
@@ -247,6 +246,16 @@ h1, h2 {
     transform: scale(1.05);
 }
 
+.badge-accent {
+    color: var(--accent);
+    font-weight: 700;
+    border: 2px solid var(--accent);
+    padding: 2px 8px;
+    border-radius: 6px;
+    display: inline-block;
+    margin-bottom: 5px;
+}
+
 /* Calendário */
 .event-row {
     display: flex;
@@ -258,17 +267,74 @@ h1, h2 {
     border-left: 4px solid var(--accent);
 }
 
-/* Admin */
+.event-date {
+    background: var(--accent);
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    min-width: 65px;
+    text-align: center;
+    font-weight: bold;
+    margin-right: 15px;
+    line-height: 1.2;
+}
+
+/* Página Sobre */
+.sobre-topo {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 30px;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.school-photo-frame {
+    border-radius: 40px;
+    overflow: hidden;
+    border: 8px solid white;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+.school-photo-frame img {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.sobre-historia p {
+    line-height: 1.8;
+    margin-bottom: 15px;
+    text-align: justify;
+}
+
+/* Painel Administrativo */
+.admin-main-container {
+    border: 2px solid var(--accent);
+    margin-top: 20px;
+}
+
 .admin-grid-selection {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
     gap: 10px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 10px;
 }
 
-.admin-item img {
-    width: 100%;
-    height: 80px;
-    object-fit: cover;
+.admin-grid-selection::-webkit-scrollbar {
+    width: 8px;
+}
+
+.admin-grid-selection::-webkit-scrollbar-track {
+    background: #eee;
+}
+
+.admin-grid-selection::-webkit-scrollbar-thumb {
+    background: var(--accent);
 }
 
 /* Footer */
@@ -276,6 +342,7 @@ h1, h2 {
     background: var(--primary);
     color: white;
     padding: 20px 0;
+    margin-top: auto;
 }
 
 .footer-grid {
@@ -284,11 +351,29 @@ h1, h2 {
     align-items: center;
 }
 
+.footer-social-icons {
+    display: flex;
+    gap: 15px;
+}
+
 /* ========================= */
-/* 🔧 CORREÇÕES + MELHORIAS */
+/* 🔧 MELHORIAS (SEM ALTERAR NADA) */
 /* ========================= */
 
-/* 🔴 Botões admin padrão */
+/* Hover admin */
+.admin-item img {
+    transition: transform 0.3s ease;
+}
+.admin-item:hover img {
+    transform: scale(1.08);
+}
+
+/* Checkbox maior */
+.admin-item input {
+    transform: scale(1.2);
+}
+
+/* Botões admin padrão */
 .btn-admin {
     background: var(--danger);
     color: white;
@@ -297,57 +382,9 @@ h1, h2 {
     border-radius: 8px;
     cursor: pointer;
     font-weight: bold;
-    transition: 0.3s;
 }
 
-.btn-admin:hover {
-    filter: brightness(1.1);
-}
-
-/* 🖼️ Hover admin */
-.admin-item img {
-    transition: transform 0.3s ease;
-}
-
-.admin-item:hover img {
-    transform: scale(1.08);
-}
-
-/* ✔ Checkbox visível */
-.admin-item input[type="checkbox"] {
-    transform: scale(1.2);
-}
-
-/* 🔝 Garantir clique no menu */
-.glass-header {
-    z-index: 9999;
-}
-
-/* 🔥 GARANTIA DO FUNCIONAMENTO DAS PÁGINAS */
-.page {
-    display: none !important;
-}
-
-.page.active {
-    display: block !important;
-}
-
-/* Footer ícones */
-.footer-social-icons {
-    display: flex;
-    gap: 15px;
-}
-
-.footer-social-icons a {
-    color: white;
-    font-size: 1.5rem;
-    transition: 0.3s;
-}
-
-.footer-social-icons a:hover {
-    color: var(--accent);
-}
-
-.footer-social-icons a i.fa-whatsapp:hover {
+/* WhatsApp verde no hover */
+.footer-social-icons i.fa-whatsapp:hover {
     color: #25D366;
 }
