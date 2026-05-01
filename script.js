@@ -184,6 +184,73 @@ async function renderAll() {
   } catch (err) {
     console.error("Erro ao renderizar dados do Railway:", err);
   }
+  async function renderAll() {
+  try {
+    const response = await fetch(`${API_URL}/items`);
+    const data = await response.json();
+
+    // --- 1. SEPARAÇÃO POR CATEGORIAS (LÓGICA DE NEGÓCIO) ---
+    
+    // Categorias da Galeria
+    const catsGaleria = ["ATIVIDADES", "DESFILE", "EVENTOS", "INFRAESTRUTURA", "HOMENAGEM"];
+    const itensGaleria = data.filter(item => catsGaleria.includes(item.category.toUpperCase()));
+
+    // Categorias de Configuração (1 imagem apenas)
+    const itemSlide = data.filter(item => item.category === "SLIDE (HOME)").slice(-5); // Pega as últimas 5
+    const itemLogo = data.slice().reverse().find(item => item.category === "LOGO");
+    const itemFavicon = data.slice().reverse().find(item => item.category === "FAVICON");
+    const itemSobre = data.slice().reverse().find(item => item.category === "FOTO SOBRE");
+
+    // --- 2. RENDERIZAR GALERIA ---
+    const grid = document.getElementById("main-grid");
+    if (grid) {
+      grid.innerHTML = itensGaleria.slice().reverse().map(item => `
+        <div class="gallery-item">
+          <img src="${item.imageUrl}" loading="lazy" onclick="window.open('${item.imageUrl}')">
+          <div style="padding:15px">
+            <p style="font-size:0.75rem; font-weight:600; color:#2c3e50">${item.title}</p>
+          </div>
+        </div>`).join("");
+    }
+
+    // --- 3. RENDERIZAR SLIDE (CARROSSEL) ---
+    const track = document.getElementById("track-home");
+    if (track) {
+      track.innerHTML = itemSlide.length > 0
+        ? itemSlide.map(s => `<img src="${s.imageUrl}">`).join("")
+        : `<img src="escola.jpg">`;
+    }
+
+    // --- 4. ATUALIZAR ELEMENTOS ÚNICOS (LOGO, FAVICON, SOBRE) ---
+    
+    // Logo (procure o elemento da logo no seu Header)
+    const logoImg = document.getElementById("img-logo");
+    if (logoImg && itemLogo) logoImg.src = itemLogo.imageUrl;
+
+    // Favicon
+    const faviconLink = document.querySelector("link[rel*='icon']");
+    if (faviconLink && itemFavicon) faviconLink.href = itemFavicon.imageUrl;
+
+    // Foto Sobre
+    const imgSobre = document.getElementById("img-sobre");
+    if (imgSobre && itemSobre) imgSobre.src = itemSobre.imageUrl;
+
+    // --- 5. PAINEL ADMIN (MOSTRA TUDO PARA EXCLUSÃO) ---
+    const adminList = document.getElementById("lista-admin");
+    if (adminList) {
+      adminList.innerHTML = data.slice().reverse().map(item => `
+        <div class="admin-item">
+          <img src="${item.imageUrl}">
+          <div style="font-size:9px; text-align:center; padding: 2px;">
+              ${item.category} - ${item.year}
+          </div>
+        </div>`).join("");
+    }
+
+  } catch (err) {
+    console.error("Erro ao carregar dados:", err);
+  }
+}
 
   // 4. Calendário
   const calList = document.getElementById("calendar-list");
