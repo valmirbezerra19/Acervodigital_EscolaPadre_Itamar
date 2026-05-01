@@ -37,7 +37,7 @@ h1, h2 {
     position: fixed;
     top: 0;
     width: 100%;
-    z-index: 9999; /* 🔥 CORREÇÃO MENU */
+    z-index: 1000;
     background: var(--glass);
     backdrop-filter: blur(10px);
     padding: 10px 0;
@@ -121,6 +121,7 @@ h1, h2 {
         opacity: 0;
         transform: translateY(10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -137,6 +138,7 @@ h1, h2 {
 /* Carrossel e Home */
 .carousel-wrapper {
     height: 600px;
+    /* Ajustado para melhor visualização */
     overflow: hidden;
     position: relative;
     border-radius: 20px;
@@ -153,13 +155,6 @@ h1, h2 {
     min-width: 100%;
     height: 100%;
     object-fit: cover;
-}
-
-/* 🔥 garante clique funcionando */
-.carousel-wrapper,
-.carousel-track,
-.carousel-track img {
-    pointer-events: none;
 }
 
 .home-cards-grid {
@@ -253,6 +248,16 @@ h1, h2 {
     transform: scale(1.05);
 }
 
+.badge-accent {
+    color: var(--accent);
+    font-weight: 700;
+    border: 2px solid var(--accent);
+    padding: 2px 8px;
+    border-radius: 6px;
+    display: inline-block;
+    margin-bottom: 5px;
+}
+
 /* Calendário */
 .event-row {
     display: flex;
@@ -273,9 +278,44 @@ h1, h2 {
     text-align: center;
     font-weight: bold;
     margin-right: 15px;
+    line-height: 1.2;
 }
 
-/* ADMIN GRID */
+/* Página Sobre */
+.sobre-topo {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 30px;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.school-photo-frame {
+    border-radius: 40px;
+    overflow: hidden;
+    border: 8px solid white;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+.school-photo-frame img {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.sobre-historia p {
+    line-height: 1.8;
+    margin-bottom: 15px;
+    text-align: justify;
+}
+
+/* Painel Administrativo */
+.admin-main-container {
+    border: 2px solid var(--accent);
+    margin-top: 20px;
+}
+
 .admin-grid-selection {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
@@ -287,6 +327,21 @@ h1, h2 {
     border-radius: 10px;
 }
 
+/* Custom Scrollbar para o Admin */
+.admin-grid-selection::-webkit-scrollbar {
+    width: 8px;
+}
+
+.admin-grid-selection::-webkit-scrollbar-track {
+    background: #eee;
+    border-radius: 10px;
+}
+
+.admin-grid-selection::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 10px;
+}
+
 .admin-item {
     position: relative;
     border-radius: 8px;
@@ -294,24 +349,20 @@ h1, h2 {
     border: 1px solid #ddd;
 }
 
-/* 🔥 hover zoom */
 .admin-item img {
     width: 100%;
     height: 80px;
     object-fit: cover;
-    transition: transform 0.3s ease;
+    display: block;
 }
 
-.admin-item:hover img {
-    transform: scale(1.1);
-}
-
-/* 🔥 checkbox melhor */
 .admin-item input {
     position: absolute;
     top: 5px;
     right: 5px;
-    transform: scale(1.3);
+    width: 18px;
+    height: 18px;
+    accent-color: var(--danger);
     cursor: pointer;
 }
 
@@ -319,7 +370,7 @@ h1, h2 {
 .footer-modern {
     background: var(--primary);
     color: white;
-    padding: 25px 0;
+    padding: 20px 0;
     margin-top: auto;
 }
 
@@ -327,7 +378,14 @@ h1, h2 {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 15px;
+    gap: 20px;
+}
+
+.footer-contacts a {
+    display: block;
+    color: #bdc3c7;
+    text-decoration: none;
+    margin-bottom: 5px;
 }
 
 .footer-social-icons {
@@ -345,31 +403,59 @@ h1, h2 {
     color: var(--accent);
 }
 
-/* WhatsApp destaque */
-.footer-social-icons i.fa-whatsapp:hover {
-    color: #25D366;
+/* Formulários e Botões */
+.input-modern {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    outline-color: var(--accent);
 }
 
-/* BOTÕES ADMIN */
+.btn-primary {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn-primary:hover {
+    filter: brightness(1.1);
+}
+
 .btn-danger-small {
     background: var(--danger);
     color: white;
     border: none;
-    padding: 10px 15px;
+    padding: 8px 15px;
     border-radius: 8px;
     cursor: pointer;
     font-weight: bold;
 }
 
-/* Responsivo */
+/* --- MEDIA QUERIES (Responsividade) --- */
 @media (max-width: 768px) {
     .nav-wrapper {
         flex-direction: column;
         gap: 15px;
     }
 
+    .brand-text {
+        text-align: center;
+    }
+
     .main-content {
         margin-top: 160px;
+    }
+
+    .sobre-topo {
+        grid-template-columns: 1fr;
     }
 
     .carousel-wrapper {
@@ -379,5 +465,10 @@ h1, h2 {
     .footer-grid {
         flex-direction: column;
         text-align: center;
+    }
+
+    .gallery-filter-bar {
+        flex-direction: column;
+        align-items: stretch;
     }
 }
