@@ -110,5 +110,22 @@ app.post("/items", (req, res) => {
   });
 });
 
+// Rota para deletar item
+app.delete("/items/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedItem = await Item.findByIdAndDelete(id);
+
+    if (!deletedItem) {
+      return res.status(404).json({ error: "Item não encontrado no banco de dados." });
+    }
+
+    res.json({ success: true, message: "Item excluído com sucesso!" });
+  } catch (err) {
+    console.error("❌ ERRO AO DELETAR NO MONGODB:", err.message);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Servidor rodando na porta ${PORT}`));
