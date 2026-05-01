@@ -9,7 +9,6 @@ const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const app = express();
 
 // --- AJUSTE DE CORS ---
-// Liberando o seu domínio específico para evitar "Erro de conexão" no navegador
 app.use(cors({
   origin: "https://valmirbezerra19.github.io"
 }));
@@ -26,17 +25,20 @@ cloudinary.config({
 // --- CONFIGURAÇÃO DO STORAGE ---
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: { 
-    folder: "acervo_escola",
-    upload_preset: "acervo_itamar", 
-    resource_type: "auto",
-    allowed_formats: ['jpg', 'png', 'jpeg', 'gif', 'webp']
+  params: async (req, file) => {
+    return {
+      folder: "acervo_escola",
+      upload_preset: "acervo_itamar", 
+      resource_type: "auto",
+      allowed_formats: ['jpg', 'png', 'jpeg', 'gif', 'webp']
+    };
   }
 });
-const upload = multer({ storage });
+
+// Middleware do Multer configurado para capturar erros
+const upload = multer({ storage: storage }).single("image");
 
 // --- CONEXÃO COM O MONGODB ---
-// Usando a variável MONGODB_URI que configuramos no Railway
 mongoose.connect(process.env.MONGODB_URI)
 .then(() => console.log("✅ Conectado ao MongoDB"))
 .catch(err => console.error("❌ Erro ao conectar ao MongoDB:", err));
@@ -72,29 +74,36 @@ app.get("/items", async (req, res) => {
   }
 });
 
-// Rota de Upload com Log de Erro Corrigido para JSON
-app.post("/items", upload.single("image"), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ error: "Arquivo não recebido pelo servidor." });
+// Rota de Upload Reescrita para detalhar o erro no Railway
+app.post("/items", (req, res) => {
+  upload(req, res, async function (err) {
+    // Se houver erro no Multer ou Cloudinary, este bloco captura antes de travar
+    if (err) {
+      console.error("❌ ERRO DETALHADO NO CLOUDINARY/MULTER:", JSON.stringify(err, null, 2));
+      return res.status(500).json({ success: false, error: err.message, details: err });
     }
 
-    const newItem = new Item({
-      title: req.body.title || "Sem título",
-      description: req.body.description || "",
-      category: req.body.category || "Geral",
-      year: req.body.year || "2026",
-      imageUrl: req.file.path 
-    });
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "Arquivo não recebido pelo servidor." });
+      }
 
-    await newItem.save();
-    console.log("✅ Upload e salvamento realizados com sucesso!");
-    res.json(newItem);
-  } catch (err) { 
-    // AGORA OS LOGS DO RAILWAY MOSTRARÃO O ERRO REAL EM TEXTO
-    console.error("❌ ERRO DETALHADO NO UPLOAD:", JSON.stringify(err, null, 2));
-    res.status(500).json({ success: false, error: err.message }); 
-  }
+      const newItem = new Item({
+        title: req.body.title || "Sem título",
+        description: req.body.description || "",
+        category: req.body.category || "Geral",
+        year: req.body.year || "2026",
+        imageUrl: req.file.path 
+      });
+
+      await newItem.save();
+      console.log("✅ Upload e salvamento realizados com sucesso!");
+      res.json(newItem);
+    } catch (dbErr) { 
+      console.error("❌ ERRO AO SALVAR NO MONGODB:", dbErr.message);
+      res.status(500).json({ success: false, error: dbErr.message }); 
+    }
+  });
 });
 
 const PORT = process.env.PORT || 3000;
