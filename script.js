@@ -92,18 +92,28 @@ async function uploadCloudinary() {
 
   if (!fileInput.files.length) return alert("Selecione fotos");
 
+  // --- ALTERAÇÃO: VALIDAÇÃO DE TAMANHO (50MB) ---
+  const file = fileInput.files[0];
+  const maxSize = 50 * 1024 * 1024; // 50MB em bytes
+
+  if (file.size > maxSize) {
+    alert("Este arquivo ultrapassa o tamanho permitido de 50MB. Por favor, escolha um arquivo menor.");
+    fileInput.value = ""; 
+    return; // Interrompe o envio
+  }
+  // ----------------------------------------------
+
   btn.innerText = "ENVIANDO...";
   btn.disabled = true;
 
   const formData = new FormData();
-  formData.append("image", fileInput.files[0]);
+  formData.append("image", file);
   formData.append("title", `${cat} - ${ano}`);
   formData.append("description", `Categoria: ${cat}`);
   formData.append("category", cat);
   formData.append("year", ano);
 
   try {
-    // O upload agora é enviado para o seu servidor Railway, que repassa ao Cloudinary
     const res = await fetch(`${API_URL}/items`, {
       method: "POST",
       body: formData,
@@ -111,7 +121,7 @@ async function uploadCloudinary() {
 
     if (res.ok) {
       alert("Foto enviada com sucesso!");
-      fileInput.value = ""; // Limpa o campo após sucesso
+      fileInput.value = ""; 
       renderAll();
     } else {
       const errorData = await res.json();
@@ -138,7 +148,7 @@ async function renderAll() {
     const grid = document.getElementById("main-grid");
     if (grid) {
       grid.innerHTML = data
-        .slice() // Cria cópia para não alterar o original
+        .slice() 
         .reverse()
         .map(
           (item) => `
