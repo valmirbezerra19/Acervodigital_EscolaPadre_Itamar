@@ -1,211 +1,224 @@
 <!doctype html>
 <html lang="pt-br">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="Acervo digital histórico e calendário escolar da E.E.F.M Padre Itamar Luiz da Costa."
-    />
-    <title>Acervo Digital | Padre Itamar</title>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Acervo Digital | Padre Itamar</title>
 
-    <link rel="stylesheet" href="style.css" />
-    <link rel="icon" type="image/png" href="img/logo.png?v=1.1" />
-    <link rel="apple-touch-icon" href="img/logo.png" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="img/logo.png" />
 
-    <!-- Ícones -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
+  <!-- Ícones -->
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
-    <!-- Fonte -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
-      rel="stylesheet"
-    />
-  </head>
+  <!-- Fonte -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap"
+    rel="stylesheet"/>
+</head>
 
-  <body>
-    <!-- HEADER -->
-    <header class="glass-header">
-      <nav class="container nav-wrapper">
-        <div class="logo-area" onclick="showPage('home')">
-          <div class="logo-circle">
-            <img
-              src="img/logo.png"
-              id="main-logo-img"
-              onerror="this.src='https://via.placeholder.com/50'"
-            />
-          </div>
-          <div class="brand-text">
-            <h1>ACERVO <span>DIGITAL</span></h1>
-            <!-- CORRIGIDO -->
-            <p>E.E.F.M Padre Itamar Luiz da Costa</p>
-          </div>
-        </div>
+<body>
 
-        <div class="nav-menu">
-          <button onclick="showPage('home')" class="nav-btn active" id="btn-home">INÍCIO</button>
-          <button onclick="showPage('galeria')" class="nav-btn" id="btn-galeria">GALERIA</button>
-          <button onclick="showPage('calendario')" class="nav-btn" id="btn-calendario">CALENDÁRIO</button>
-          <button onclick="showPage('sobre')" class="nav-btn" id="btn-sobre">SOBRE</button>
-          <button onclick="showPage('login')" class="admin-icon" id="btn-login">
-            <i class="fas fa-shield-alt"></i>
-          </button>
-        </div>
-      </nav>
-    </header>
+<!-- HEADER -->
+<header class="glass-header">
+  <nav class="container nav-wrapper">
 
-    <!-- MAIN -->
-    <main class="main-content">
-
-      <!-- HOME -->
-      <section id="home" class="page active">
-        <div class="container">
-          <div class="carousel-wrapper glass-card">
-            <div class="carousel-track" id="track-home"></div>
-          </div>
-
-          <div class="home-cards-grid">
-            <div class="glass-card feature-card clickable-card" onclick="showPage('galeria')">
-              <i class="fas fa-landmark"></i>
-              <h3>Patrimônio Histórico</h3>
-              <p>Acesse nossa galeria de fotos históricas.</p>
-            </div>
-
-            <div class="glass-card feature-card clickable-card" onclick="showPage('calendario')">
-              <i class="fas fa-graduation-cap"></i>
-              <h3>Calendário Escolar</h3>
-              <p>Veja as datas e eventos do ano letivo.</p>
-            </div>
-
-            <div class="glass-card feature-card clickable-card" onclick="showPage('sobre')">
-              <i class="fas fa-users-viewfinder"></i>
-              <h3>Nossa História</h3>
-              <p>Saiba mais sobre a trajetória da nossa escola.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- GALERIA -->
-      <section id="galeria" class="page container">
-        <div class="gallery-filter-bar glass-card">
-          <select id="year-selector" class="select-modern" onchange="filtrarAno(this.value)"></select>
-
-          <div class="filter-pills">
-            <button class="pill active" onclick="filtrarCat('TODAS', this)">Todas</button>
-            <button class="pill" onclick="filtrarCat('ATIVIDADES', this)">Atividades</button>
-            <button class="pill" onclick="filtrarCat('DESFILE', this)">Desfile</button>
-            <button class="pill" onclick="filtrarCat('EVENTOS', this)">Eventos</button>
-            <button class="pill" onclick="filtrarCat('INFRAESTRUTURA', this)">Infraestrutura</button>
-            <button class="pill" onclick="filtrarCat('HOMENAGEM', this)">Homenagem</button>
-          </div>
-        </div>
-
-        <div class="elegant-grid" id="main-grid"></div>
-      </section>
-
-      <!-- CALENDÁRIO -->
-      <section id="calendario" class="page container">
-        <div class="glass-card">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-            <h2>Calendário Escolar</h2>
-            <h3 id="cal-clock" style="color:var(--accent)">00:00:00</h3>
-          </div>
-          <div id="calendar-list"></div>
-        </div>
-      </section>
-
-      <!-- SOBRE -->
-      <section id="sobre" class="page container">
-        <div class="glass-card">
-          <div class="school-photo-frame">
-            <img
-              src="escola.jpg"
-              id="img-sobre-display"
-              alt="Fachada da Escola"
-            />
-          </div>
-        </div>
-      </section>
-
-      <!-- ADMIN -->
-      <section id="login" class="page container">
-        <div class="glass-card">
-
-          <input type="file" id="new-img-file" multiple />
-
-          <select id="new-img-cat">
-            <option value="ATIVIDADES">ATIVIDADES</option>
-            <option value="DESFILE">DESFILE</option>
-            <option value="EVENTOS">EVENTOS</option>
-            <option value="INFRAESTRUTURA">INFRAESTRUTURA</option>
-            <option value="HOMENAGEM">HOMENAGEM</option>
-            <option value="SLIDE (HOME)">SLIDE (HOME)</option>
-            <option value="LOGO">LOGO</option>
-            <!-- NOVA -->
-            <option value="FOTO ESCOLA">FOTO ESCOLA</option>
-            <option value="FAVICON">FAVICON</option>
-          </select>
-
-          <select id="new-img-year"></select>
-
-          <button onclick="uploadCloudinary()" class="btn-primary">
-            ENVIAR
-          </button>
-
-        </div>
-
-        <button onclick="excluirSelecionados()" class="btn-danger-small">
-          EXCLUIR
-        </button>
-
-        <div id="lista-admin" class="admin-grid-selection"></div>
-      </section>
-
-    </main>
-
-    <!-- FOOTER COMPLETO -->
-    <footer class="footer-modern">
-      <div class="container footer-grid">
-
-        <div>
-          <h3>ESCOLA PADRE ITAMAR LUIZ DA COSTA</h3>
-          <p>Estrada Geral Ponta Grossa, Imaruí - SC</p>
-
-          <p style="font-size: 0.8rem; margin-top: 10px; color: #bdc3c7">
-            Desenvolvido por:
-            <strong>
-              Valmir Ap. Bezerra aluno de Análise e Desenvolvimento de Sistemas
-            </strong>
-          </p>
-        </div>
-
-        <div class="footer-contacts">
-          <a href="mailto:escolaitamarluiz@gmail.com" target="_blank">
-            <i class="fas fa-envelope"></i> escolaitamarluiz@gmail.com
-          </a>
-        </div>
-
-        <div class="footer-social-icons">
-          <a href="https://www.facebook.com/profile.php?id=61565266451755" target="_blank">
-            <i class="fab fa-facebook"></i>
-          </a>
-
-          <a href="https://www.instagram.com/escolapadreluizdacosta/" target="_blank">
-            <i class="fab fa-instagram"></i>
-          </a>
-
-          <a href="https://wa.me/5548998118259?text=Ol%C3%A1!%20Como%20a%20Escola%20Padre%20Itamar%20Luiz%20da%20Costa%20pode%20lhe%20ajudar%3F" target="_blank">
-            <i class="fab fa-whatsapp"></i>
-          </a>
-        </div>
-
+    <div class="logo-area" onclick="showPage('home')">
+      <div class="logo-circle">
+        <img id="main-logo-img" src="img/logo.png" />
       </div>
-    </footer>
 
-    <script src="script.js"></script>
-  </body>
+      <div class="brand-text">
+        <h1>ACERVO <span>DIGITAL</span></h1>
+        <p>E.E.F.M Padre Itamar Luiz da Costa</p>
+      </div>
+    </div>
+
+    <div class="nav-menu">
+      <button onclick="showPage('home')" class="nav-btn active" id="btn-home">INÍCIO</button>
+      <button onclick="showPage('galeria')" class="nav-btn" id="btn-galeria">GALERIA</button>
+      <button onclick="showPage('calendario')" class="nav-btn" id="btn-calendario">CALENDÁRIO</button>
+      <button onclick="showPage('sobre')" class="nav-btn" id="btn-sobre">SOBRE</button>
+      <button onclick="showPage('login')" class="admin-icon">
+        <i class="fas fa-shield-alt"></i>
+      </button>
+    </div>
+
+  </nav>
+</header>
+
+<!-- MAIN -->
+<main class="main-content">
+
+<!-- HOME -->
+<section id="home" class="page active">
+  <div class="container">
+
+    <div class="carousel-wrapper glass-card">
+      <div id="track-home" class="carousel-track"></div>
+    </div>
+
+    <div class="home-cards-grid">
+      <div class="glass-card clickable-card" onclick="showPage('galeria')">
+        <i class="fas fa-landmark"></i>
+        <h3>Patrimônio Histórico</h3>
+        <p>Acesse nossa galeria.</p>
+      </div>
+
+      <div class="glass-card clickable-card" onclick="showPage('calendario')">
+        <i class="fas fa-graduation-cap"></i>
+        <h3>Calendário Escolar</h3>
+        <p>Datas do ano letivo.</p>
+      </div>
+
+      <div class="glass-card clickable-card" onclick="showPage('sobre')">
+        <i class="fas fa-users"></i>
+        <h3>Nossa História</h3>
+        <p>Conheça nossa trajetória.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- GALERIA -->
+<section id="galeria" class="page container">
+  <div class="gallery-filter-bar glass-card">
+    <select id="year-selector"></select>
+  </div>
+
+  <div id="main-grid" class="elegant-grid"></div>
+</section>
+
+<!-- CALENDÁRIO -->
+<section id="calendario" class="page container">
+  <div class="glass-card">
+    <div style="display:flex;justify-content:space-between;">
+      <h2>Calendário Escolar</h2>
+      <h3 id="cal-clock"></h3>
+    </div>
+
+    <div id="calendar-list"></div>
+  </div>
+</section>
+
+<!-- SOBRE -->
+<section id="sobre" class="page container">
+  <div class="glass-card">
+
+    <div class="sobre-topo">
+
+      <!-- IMAGEM -->
+      <div class="sobre-content-right">
+        <div class="school-photo-frame">
+          <img id="img-sobre-display" src="escola.jpg"/>
+        </div>
+      </div>
+
+      <!-- TEXTO -->
+      <div class="sobre-content-left">
+        <span class="badge-accent">NOSSA HISTÓRIA</span>
+        <h2>Mais de 50 anos de tradição</h2>
+        <h4>Educando gerações</h4>
+
+        <p>
+          A Escola Padre Itamar Luiz da Costa possui uma trajetória marcada
+          pelo compromisso com a educação, formando cidadãos e contribuindo
+          com o desenvolvimento da comunidade ao longo de décadas.
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- ADMIN -->
+<section id="login" class="page container">
+
+  <!-- LOGIN -->
+  <div id="login-box" class="glass-card">
+    <h3>Painel Administrativo</h3>
+
+    <input type="email" id="adm-email" placeholder="E-mail" class="input-modern"/>
+    <input type="password" id="adm-pass" placeholder="Senha" class="input-modern"/>
+
+    <button onclick="efetuarLogin()" class="btn-primary">
+      ENTRAR
+    </button>
+  </div>
+
+  <!-- PAINEL -->
+  <div id="admin-panel" style="display:none">
+
+    <div class="glass-card">
+
+      <h4>Novo Upload</h4>
+
+      <input type="file" id="new-img-file" multiple class="input-modern"/>
+
+      <select id="new-img-cat" class="input-modern">
+        <option value="ATIVIDADES">ATIVIDADES</option>
+        <option value="DESFILE">DESFILE</option>
+        <option value="EVENTOS">EVENTOS</option>
+        <option value="INFRAESTRUTURA">INFRAESTRUTURA</option>
+        <option value="HOMENAGEM">HOMENAGEM</option>
+        <option value="SLIDE (HOME)">SLIDE (HOME)</option>
+        <option value="LOGO">LOGO</option>
+        <option value="FOTO ESCOLA">FOTO ESCOLA</option>
+      </select>
+
+      <select id="new-img-year" class="input-modern"></select>
+
+      <button onclick="uploadCloudinary()" class="btn-primary">
+        ENVIAR
+      </button>
+
+      <button onclick="excluirSelecionados()" class="btn-admin">
+        EXCLUIR SELECIONADOS
+      </button>
+
+    </div>
+
+    <!-- GRID -->
+    <div id="lista-admin" class="admin-grid-selection"></div>
+
+  </div>
+
+</section>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="footer-modern">
+  <div class="container footer-grid">
+
+    <div>
+      <h3>ESCOLA PADRE ITAMAR LUIZ DA COSTA</h3>
+      <p>Imaruí - SC</p>
+
+      <p style="font-size:12px;margin-top:10px;">
+        Desenvolvido por Valmir Ap. Bezerra
+      </p>
+    </div>
+
+    <div class="footer-social-icons">
+      <a href="https://www.facebook.com" target="_blank">
+        <i class="fab fa-facebook"></i>
+      </a>
+
+      <a href="https://www.instagram.com" target="_blank">
+        <i class="fab fa-instagram"></i>
+      </a>
+
+      <a href="https://wa.me/5548998118259" target="_blank">
+        <i class="fab fa-whatsapp"></i>
+      </a>
+    </div>
+
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
 </html>
