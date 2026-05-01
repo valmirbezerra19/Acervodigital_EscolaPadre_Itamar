@@ -34,7 +34,7 @@
           </div>
           <div class="brand-text">
             <h1>ACERVO <span>DIGITAL</span></h1>
-            <p>E.E.F.M Padre Itamar Luiz da Costa</p>
+            <p>E.E.F.M Padre Itamar Luiz da Costa2</p>
           </div>
         </div>
         <div class="nav-menu">
@@ -162,7 +162,9 @@
                 Há mais de meio século, em uma comunidade que crescia cheia de
                 sonhos e desafios, nascia a Escola Padre Itamar Luiz da Costa.
                 No início, era simples: algumas salas, poucos recursos, mas um
-                propósito enorme — educar, acolher e transformar vidas.
+                propósito enorme — educar, acolher e transformar vidas. Com o
+                passar dos anos, a escola se tornou um verdadeiro ponto de
+                referência para famílias inteiras.
               </p>
             </div>
             <div class="sobre-content-right">
@@ -180,32 +182,80 @@
               Gerações passaram pelos corredores da escola. Pais que um dia
               foram alunos voltaram anos depois, agora trazendo seus filhos.
               Histórias se entrelaçaram, amizades nasceram e sonhos começaram a
-              tomar forma dentro daquelas salas.
+              tomar forma dentro daquelas salas. Hoje, com mais de 50 anos de
+              história, a Escola Padre Itamar Luiz da Costa não é apenas um
+              lugar de ensino — é um símbolo de tradição, cuidado e compromisso
+              com o futuro. Uma instituição que continua plantando sementes de
+              conhecimento, colhendo cidadãos preparados para o mundo.
             </p>
           </div>
         </div>
       </section>
 
       <section id="login" class="page container">
-        <div id="login-box" class="glass-card login-center" style="max-width: 400px; margin: 0 auto">
+        <div
+          id="login-box"
+          class="glass-card login-center"
+          style="max-width: 400px; margin: 0 auto"
+        >
           <h3>Painel Administrativo</h3>
-          <input type="email" id="adm-email" placeholder="E-mail" class="input-modern" />
-          <input type="password" id="adm-pass" placeholder="Senha" class="input-modern" />
-          <button onclick="efetuarLogin()" class="btn-primary" id="btn-login-action">ENTRAR</button>
+          <input
+            type="email"
+            id="adm-email"
+            placeholder="E-mail"
+            class="input-modern"
+          />
+          <input
+            type="password"
+            id="adm-pass"
+            placeholder="Senha"
+            class="input-modern"
+          />
+          <button
+            onclick="efetuarLogin()"
+            class="btn-primary"
+            id="btn-login-action"
+          >
+            ENTRAR
+          </button>
         </div>
 
         <div id="admin-panel" style="display: none">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 20px;
+            "
+          >
             <div style="display: flex; gap: 10px">
-              <button onclick="alterarMinhaSenha()" class="btn-danger-small" style="background: var(--accent)">MUDAR SENHA</button>
-              <button onclick="cadastrarNovoAdmin()" class="btn-danger-small" style="background: #27ae60">NOVO USUÁRIO</button>
+              <button
+                onclick="alterarMinhaSenha()"
+                class="btn-danger-small"
+                style="background: var(--accent)"
+              >
+                MUDAR SENHA
+              </button>
+              <button
+                onclick="cadastrarNovoAdmin()"
+                class="btn-danger-small"
+                style="background: #27ae60"
+              >
+                NOVO USUÁRIO
+              </button>
             </div>
             <button onclick="logout()" class="btn-danger-small">SAIR</button>
           </div>
           <div class="admin-dashboard">
             <div class="glass-card" style="margin-bottom: 20px">
               <h4>Novo Upload</h4>
-              <input type="file" id="new-img-file" multiple class="input-modern" />
+              <input
+                type="file"
+                id="new-img-file"
+                multiple
+                class="input-modern"
+              />
               <select id="new-img-cat" class="input-modern">
                 <option value="ATIVIDADES">ATIVIDADES</option>
                 <option value="DESFILE">DESFILE</option>
@@ -213,16 +263,37 @@
                 <option value="INFRAESTRUTURA">INFRAESTRUTURA</option>
                 <option value="HOMENAGEM">HOMENAGEM</option>
                 <option value="SLIDE">SLIDE (HOME)</option>
+                <option value="LOGO">LOGO</option>
+                <option value="SOBRE">FOTO SOBRE</option>
+                <option value="FAVICON">FAVICON</option>
               </select>
               <select id="new-img-year" class="input-modern"></select>
-              <button onclick="uploadCloudinary()" class="btn-primary" id="btn-upload">ENVIAR</button>
+              <button
+                onclick="uploadCloudinary()"
+                class="btn-primary"
+                id="btn-upload"
+              >
+                ENVIAR
+              </button>
             </div>
             <div class="glass-card admin-main-container">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-                    <h4>Gerenciar Acervo</h4>
-                    <button onclick="excluirSelecionados()" class="btn-danger-small"><i class="fas fa-trash"></i> Excluir</button>
-                </div>
-                <div id="lista-admin" class="admin-grid-selection"></div>
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  margin-bottom: 15px;
+                "
+              >
+                <h4>Gerenciar Acervo</h4>
+                <button
+                  onclick="excluirSelecionados()"
+                  class="btn-danger-small"
+                >
+                  <i class="fas fa-trash"></i> Excluir
+                </button>
+              </div>
+              <div id="lista-admin" class="admin-grid-selection"></div>
             </div>
           </div>
         </div>
@@ -234,11 +305,35 @@
         <div>
           <h3>ESCOLA PADRE ITAMAR LUIZ DA COSTA</h3>
           <p>Estrada Geral Ponta Grossa, Imaruí - SC</p>
+          <p style="font-size: 0.8rem; margin-top: 10px; color: #bdc3c7">
+            Desenvolvido por:
+            <strong
+              >Valmir Ap. Bezerra aluno de Análise e Desenvolvimento de
+              Sistemas</strong
+            >
+          </p>
+        </div>
+        <div class="footer-contacts">
+          <a href="mailto:escolaitamarluiz@gmail.com" target="_blank"
+            ><i class="fas fa-envelope"></i> escolaitamarluiz@gmail.com</a
+          >
         </div>
         <div class="footer-social-icons">
-          <a href="https://www.facebook.com/profile.php?id=61565266451755" target="_blank"><i class="fab fa-facebook"></i></a>
-          <a href="https://www.instagram.com/escolapadreluizdacosta/" target="_blank"><i class="fab fa-instagram"></i></a>
-          <a href="https://wa.me/5548998118259" target="_blank"><i class="fab fa-whatsapp"></i></a>
+          <a
+            href="https://www.facebook.com/profile.php?id=61565266451755"
+            target="_blank"
+            ><i class="fab fa-facebook"></i
+          ></a>
+          <a
+            href="https://www.instagram.com/escolapadreluizdacosta/"
+            target="_blank"
+            ><i class="fab fa-instagram"></i
+          ></a>
+          <a
+            href="https://wa.me/5548998118259?text=Ol%C3%A1!%20Como%20a%20Escola%20Padre%20Itamar%20Luiz%20da%20Costa%20pode%20lhe%20ajudar%3F"
+            target="_blank"
+            ><i class="fab fa-whatsapp"></i
+          ></a>
         </div>
       </div>
     </footer>
