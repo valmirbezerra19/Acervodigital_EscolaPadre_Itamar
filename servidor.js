@@ -11,32 +11,26 @@ app.use(cors());
 app.use(express.json());
 
 // --- CONFIGURAÇÃO DO CLOUDINARY ---
-// Usando as chaves exatas que conferimos no seu painel do Railway
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// --- CONFIGURAÇÃO DO ARMAZENAMENTO (STORAGE) ---
+// --- CONFIGURAÇÃO DO STORAGE ---
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: { 
     folder: "acervo_escola",
-    upload_preset: "acervo_itamar", // O preset que está Unsigned no seu Cloudinary
+    upload_preset: "acervo_itamar", // O preset que conferimos no seu painel
     resource_type: "auto",
-    allowed_formats: ['jpg', 'png', 'jpeg', 'gif', 'webp'], // Impede erros com formatos estranhos
-    public_id: (req, file) => `file_${Date.now()}`
+    allowed_formats: ['jpg', 'png', 'jpeg', 'gif', 'webp']
   }
 });
 const upload = multer({ storage });
 
 // --- CONEXÃO COM O MONGODB ---
-// Corrigido para MONGODB_URI (conforme configurado no Railway)
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
+mongoose.connect(process.env.MONGODB_URI)
 .then(() => console.log("✅ Conectado ao MongoDB"))
 .catch(err => console.error("❌ Erro ao conectar ao MongoDB:", err));
 
@@ -52,34 +46,26 @@ const Item = mongoose.model("Item", ItemSchema);
 
 // --- ROTAS ---
 
-// Rota de Teste
-app.get("/", (req, res) => res.send("Servidor do Acervo está Online!"));
+app.get("/", (req, res) => res.send("Servidor Online!"));
 
-// Rota de Login
-app.post("/login", async (req, res) => {
+app.post("/login", (req, res) => {
   const { email, password } = req.body;
   if (email === "admin@escola.com" && password === "123456") {
     return res.json({ success: true });
-  } else {
-    return res.status(401).json({ success: false, message: "Credenciais inválidas" });
   }
+  res.status(401).json({ success: false });
 });
 
-// Rota de Listagem
 app.get("/items", async (req, res) => {
-  try {
-    const items = await Item.find();
-    res.json(items);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  const items = await Item.find();
+  res.json(items);
 });
 
-// Rota de Upload de Itens
+// Rota de Upload com Log de Erro detalhado
 app.post("/items", upload.single("image"), async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ error: "Nenhum arquivo de imagem recebido." });
+      return res.status(400).json({ error: "Arquivo não recebido pelo servidor." });
     }
 
     const newItem = new Item({
@@ -87,19 +73,17 @@ app.post("/items", upload.single("image"), async (req, res) => {
       description: req.body.description || "",
       category: req.body.category || "Geral",
       year: req.body.year || "2026",
-      imageUrl: req.file.path // URL segura retornada pelo Cloudinary
+      imageUrl: req.file.path 
     });
 
     await newItem.save();
     res.json(newItem);
   } catch (err) { 
-    console.error("Erro no processo de upload:", err.message);
+    // CORREÇÃO PARA O LOG [object Object]:
+    console.error("❌ ERRO DETALHADO NO UPLOAD:", JSON.stringify(err, null, 2));
     res.status(500).json({ success: false, error: err.message }); 
   }
 });
 
-// --- INICIALIZAÇÃO DO SERVIDOR ---
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor rodando na porta ${PORT}`);
-});
+app.listen(PORT, () => console.log(`🚀 Servidor rodando na porta ${PORT}`));
