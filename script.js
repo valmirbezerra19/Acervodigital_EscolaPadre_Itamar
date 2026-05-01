@@ -1,132 +1,68 @@
-/**
- * PROJETO: ACERVO PADRE ITAMAR
- * AMBIENTE: PRODUÇÃO (RAILWAY + CLOUDINARY)
- */
-
+// CONFIGURAÇÕES GLOBAIS
 const API_URL = "https://backend-acervo-production.up.railway.app/api/fotos"; 
-
-const CONFIG = {
-    cloud: "defxlhmma",
-    preset: "acervo_itamar",
-};
+const CLOUD_CONFIG = { cloud: "defxlhmma", preset: "acervo_itamar" };
 
 let todasAsFotos = [],
     currentSlide = 0,
     filtroCatAtual = "TODAS",
     filtroAnoAtual = "TODOS";
 
-// INICIALIZAÇÃO
+// INICIALIZAÇÃO COMPLETA
 function init() {
     setupYears();
-    fetchFotos(); // Busca do MongoDB
-    setInterval(() => moveSlide(1), 5000);
-    setInterval(updateClock, 1000);
+    fetchFotos(); // Busca dados do MongoDB via Railway
+    setInterval(() => moveSlide(1), 5000); // Slide Automático
+    setInterval(updateClock, 1000); // Relógio em tempo real
 
+    // Observador do Firebase para Login
     firebase.auth().onAuthStateChanged((user) => {
+        const loginBox = document.getElementById("login-box");
+        const adminPanel = document.getElementById("admin-panel");
         if (user) {
-            document.getElementById("login-box").style.display = "none";
-            document.getElementById("admin-panel").style.display = "block";
+            if(loginBox) loginBox.style.display = "none";
+            if(adminPanel) adminPanel.style.display = "block";
             renderAll();
+        } else {
+            if(loginBox) loginBox.style.display = "block";
+            if(adminPanel) adminPanel.style.display = "none";
         }
     });
 }
 
-// BUSCAR DADOS (GET)
+// BUSCAR DADOS DA API
 async function fetchFotos() {
     try {
         const res = await fetch(API_URL);
-        if (!res.ok) throw new Error("Erro na rede");
         todasAsFotos = await res.json();
         renderAll();
     } catch (err) {
-        console.error("Falha ao carregar API Railway:", err);
+        console.error("Erro na API Railway:", err);
     }
 }
 
-// UPLOAD (POST)
-async function uploadCloudinary() {
-    const files = document.getElementById("new-img-file").files;
-    const cat = document.getElementById("new-img-cat").value;
-    const ano = document.getElementById("new-img-year").value;
-    const btn = document.getElementById("btn-upload");
-
-    if (!files.length) return alert("Por favor, selecione as imagens.");
+// NAVEGAÇÃO ENTRE PÁGINAS (RESTUARADA)
+function showPage(id) {
+    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+    document.getElementById(id)?.classList.add("active");
     
-    btn.innerText = "ENVIANDO...";
-    btn.disabled = true;
-
-    for (let f of files) {
-        const fd = new FormData();
-        fd.append("file", f);
-        fd.append("upload_preset", CONFIG.preset);
-        
-        try {
-            const resCloud = await fetch(`https://api.cloudinary.com/v1_1/${CONFIG.cloud}/image/upload`, { method: "POST", body: fd });
-            const d = await resCloud.json();
-            
-            await fetch(API_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    url: d.secure_url.replace("/upload/", "/upload/q_auto,f_auto/"),
-                    cat: cat,
-                    ano: ano
-                })
-            });
-        } catch (e) { console.error("Erro no upload individual:", e); }
-    }
+    document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+    document.getElementById("btn-" + id)?.classList.add("active");
     
-    btn.innerText = "ENVIAR";
-    btn.disabled = false;
-    fetchFotos(); // Recarrega do banco
+    window.scrollTo(0, 0);
+    renderAll();
 }
 
-// EXCLUIR (DELETE) - RESOLVE O ERRO DA IMAGEM ex1.png
-async function excluirSelecionados() {
-    const checkboxes = document.querySelectorAll(".delete-checkbox:checked");
-    
-    if (checkboxes.length === 0) {
-        alert("Erro: Você deve marcar as fotos que deseja excluir.");
-        return;
-    }
-    
-    if (!confirm(`Deseja realmente excluir ${checkboxes.length} item(s)?`)) return;
-
-    const btn = document.querySelector(".btn-danger-small");
-    btn.innerText = "EXCLUINDO...";
-    btn.disabled = true;
-
-    try {
-        for (let cb of checkboxes) {
-            const id = cb.getAttribute("data-id"); // Pega o _id do MongoDB
-            await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-        }
-        alert("Exclusão realizada com sucesso no MongoDB!");
-    } catch (err) {
-        console.error("Erro ao deletar:", err);
-    } finally {
-        btn.innerText = "Excluir";
-        btn.disabled = false;
-        fetchFotos();
-    }
-}
-
-// RENDERIZAÇÃO
+// RENDERIZAÇÃO DE TODAS AS SEÇÕES
 function renderAll() {
     const data = todasAsFotos;
 
-    // Admin
-    const adminList = document.getElementById("lista-admin");
-    if (adminList) {
-        adminList.innerHTML = data.slice().reverse().map(item => `
-            <div class="admin-item">
-                <input type="checkbox" class="delete-checkbox" data-id="${item._id}">
-                <img src="${item.url}">
-                <div>${item.cat} | ${item.ano}</div>
-            </div>`).join("");
+    // 1. Logo e Sobre
+    const logo = data.filter(x => x.cat === "LOGO").pop();
+    if (logo && document.getElementById("main-logo-img")) {
+        document.getElementById("main-logo-img").src = logo.url;
     }
 
-    // Galeria
+    // 2. Galeria Pública
     const grid = document.getElementById("main-grid");
     if (grid) {
         const catsGaleria = ["ATIVIDADES", "DESFILE", "EVENTOS", "INFRAESTRUTURA", "HOMENAGEM"];
@@ -139,13 +75,24 @@ function renderAll() {
                 <div class="gallery-item" onclick="window.open('${item.url}', '_blank')">
                     <img src="${item.url}" loading="lazy">
                     <div style="padding:15px">
-                        <span class="btn-primary" style="padding:2px 8px; font-size:10px">${item.ano}</span>
-                        <p style="margin-top:8px; font-weight:bold">${item.cat}</p>
+                        <span style="font-size:12px; background:#3498db; color:white; padding:2px 8px; border-radius:4px">${item.ano}</span>
+                        <p style="font-weight:bold; margin-top:5px">${item.cat}</p>
                     </div>
                 </div>`).join("");
     }
 
-    // Slide
+    // 3. Painel Admin (Seleção para Excluir)
+    const adminList = document.getElementById("lista-admin");
+    if (adminList) {
+        adminList.innerHTML = data.slice().reverse().map(item => `
+            <div class="admin-item">
+                <input type="checkbox" class="delete-checkbox" data-id="${item._id}">
+                <img src="${item.url}">
+                <div style="font-size:9px; text-align:center">${item.cat} | ${item.ano}</div>
+            </div>`).join("");
+    }
+
+    // 4. Slides
     const track = document.getElementById("track-home");
     if (track) {
         const slides = data.filter(x => x.cat === "SLIDE");
@@ -153,7 +100,54 @@ function renderAll() {
     }
 }
 
-// SUPORTE
+// EXCLUIR DO MONGODB (CORRIGIDO)
+async function excluirSelecionados() {
+    const selecionados = document.querySelectorAll(".delete-checkbox:checked");
+    if (selecionados.length === 0) return alert("Selecione fotos para excluir.");
+    
+    if (!confirm("Excluir permanentemente do banco de dados?")) return;
+
+    for (let cb of selecionados) {
+        const id = cb.getAttribute("data-id");
+        await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+    }
+    fetchFotos();
+}
+
+// UPLOAD (CLOUDINARY + RAILWAY)
+async function uploadCloudinary() {
+    const files = document.getElementById("new-img-file").files;
+    const cat = document.getElementById("new-img-cat").value;
+    const ano = document.getElementById("new-img-year").value;
+    const btn = document.getElementById("btn-upload");
+
+    if (!files.length) return alert("Selecione fotos.");
+    btn.disabled = true; btn.innerText = "ENVIANDO...";
+
+    for (let f of files) {
+        const fd = new FormData();
+        fd.append("file", f);
+        fd.append("upload_preset", CLOUD_CONFIG.preset);
+        
+        const resCloud = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_CONFIG.cloud}/image/upload`, { method: "POST", body: fd });
+        const d = await resCloud.json();
+        
+        await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url: d.secure_url, cat, ano })
+        });
+    }
+    btn.disabled = false; btn.innerText = "ENVIAR";
+    fetchFotos();
+}
+
+// FUNÇÕES DE APOIO
+function updateClock() {
+    const clock = document.getElementById("cal-clock");
+    if (clock) clock.innerText = new Date().toLocaleTimeString("pt-BR");
+}
+
 function moveSlide(step) {
     const track = document.getElementById("track-home");
     const slides = track?.querySelectorAll("img");
@@ -162,23 +156,24 @@ function moveSlide(step) {
     track.style.transform = `translateX(-${currentSlide * 100}%)`;
 }
 
-function updateClock() {
-    const clock = document.getElementById("cal-clock");
-    if (clock) clock.innerText = new Date().toLocaleTimeString("pt-BR");
-}
-
-function showPage(id) {
-    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-    document.getElementById(id)?.classList.add("active");
-    window.scrollTo(0,0);
-    renderAll();
-}
-
 function setupYears() {
     let opts = "";
     for (let i = 2026; i >= 1970; i--) opts += `<option value="${i}">${i}</option>`;
-    if(document.getElementById("year-selector")) document.getElementById("year-selector").innerHTML = '<option value="TODOS">Todos</option>' + opts;
-    if(document.getElementById("new-img-year")) document.getElementById("new-img-year").innerHTML = opts;
+    const s1 = document.getElementById("year-selector");
+    const s2 = document.getElementById("new-img-year");
+    if(s1) s1.innerHTML = '<option value="TODOS">Todos os Anos</option>' + opts;
+    if(s2) s2.innerHTML = opts;
 }
+
+// LOGIN FIREBASE
+async function efetuarLogin() {
+    const email = document.getElementById("adm-email").value;
+    const pass = document.getElementById("adm-pass").value;
+    try {
+        await firebase.auth().signInWithEmailAndPassword(email, pass);
+    } catch (e) { alert("Erro de acesso."); }
+}
+
+function logout() { firebase.auth().signOut().then(() => location.reload()); }
 
 document.addEventListener("DOMContentLoaded", init);
