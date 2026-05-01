@@ -110,28 +110,24 @@ function renderAll() {
   tx.objectStore(CONFIG.store).getAll().onsuccess = (e) => {
     const data = e.target.result;
 
-    // 1. Atualizar Logo
     const logo = data.filter((x) => x.cat === "LOGO").pop();
     if (logo) {
       const logoEl = document.getElementById("img-logo");
       if (logoEl) logoEl.src = logo.url;
     }
 
-    // 2. Atualizar Favicon
     const fav = data.filter((x) => x.cat === "FAVICON").pop();
     if (fav) {
       const link = document.querySelector("link[rel*='icon']");
       if (link) link.href = fav.url;
     }
 
-    // 3. Atualizar Foto Sobre
     const sobre = data.filter((x) => x.cat === "FOTO SOBRE").pop();
     if (sobre) {
       const sobreEl = document.getElementById("img-sobre");
       if (sobreEl) sobreEl.src = sobre.url;
     }
 
-    // 4. Renderizar Galeria Principal
     const grid = document.getElementById("main-grid");
     if (grid) {
       const catsGaleria = ["ATIVIDADES", "DESFILE", "EVENTOS", "INFRAESTRUTURA", "HOMENAGEM"];
@@ -150,7 +146,6 @@ function renderAll() {
           </div>`).join("");
     }
 
-    // 5. Renderizar Slideshow (Home)
     const track = document.getElementById("track-home");
     if (track) {
       const slides = data.filter((x) => x.cat === "SLIDE (HOME)");
@@ -159,7 +154,7 @@ function renderAll() {
           : `<img src="escola.jpg">`;
     }
 
-    // 6. Lista Administrativa
+    // 6. Lista Administrativa (Atualizada com Clique para Ampliar)
     const adminList = document.getElementById("lista-admin");
     if (adminList) {
       adminList.innerHTML = data
@@ -167,12 +162,15 @@ function renderAll() {
         .map(item => `
           <div class="admin-item">
             <input type="checkbox" class="delete-checkbox" data-id="${item.id}">
-            <img src="${item.url}">
-            <div style="font-size:9px; text-align:center; background:#fff; padding:2px">${item.cat} | ${item.ano}</div>
+            <img src="${item.url}" 
+                 onclick="window.open('${item.url}', '_blank')" 
+                 title="Clique para ver em tamanho real">
+            <div style="font-size:9px; text-align:center; background:#fff; padding:2px">
+                ${item.cat} | ${item.ano}
+            </div>
           </div>`).join("");
     }
 
-    // 7. Calendário (Estático do Array)
     const calList = document.getElementById("calendar-list");
     if (calList) {
       calList.innerHTML = EVENTOS_ESCOLARES.map((ev) => {
@@ -190,7 +188,6 @@ function renderAll() {
   };
 }
 
-// Funções de Interface Auxiliares
 function updateClock() {
   const clock = document.getElementById("cal-clock");
   if (clock) clock.innerText = new Date().toLocaleTimeString("pt-BR");
@@ -241,7 +238,7 @@ function moveSlide(step) {
 async function excluirSelecionados() {
   const checkboxes = document.querySelectorAll(".delete-checkbox:checked");
   if (checkboxes.length === 0) return alert("Selecione itens para excluir.");
-  if (!confirm("Excluir selecionados do banco local?")) return;
+  if (!confirm(`Deseja excluir permanentemente os ${checkboxes.length} itens selecionados?`)) return;
   
   const tx = db.transaction(CONFIG.store, "readwrite");
   const store = tx.objectStore(CONFIG.store);
