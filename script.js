@@ -167,8 +167,8 @@ function gerarCalendario() {
   ];
   
   c.innerHTML = evs.map(e => `
-    <div class="custom-card" style="text-align: center; margin-bottom: 15px;">
-      <div class="card-badge-img"><img src="ano.png" style="width:30px;" alt="ícone"></div>
+    <p><hr/></p><div class="custom-card" style="text-align: center; margin-bottom: 15px;">
+      
       <div class="card-icon-box"><i class="fas ${e.i}"></i></div>
       <h1 style="color: var(--primary); margin:0;">${e.d} ${e.m}</h1>
       <p>${e.t}</p>
