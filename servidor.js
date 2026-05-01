@@ -1,57 +1,88 @@
-// 2. Configuração do Cloudinary (Ajustada para compatibilidade)
+require("dotenv").config(); // 1. Carrega as variáveis do .env
+const express = require("express");
+const cors = require("cors");
+const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
+const cloudinary = require("cloudinary").v2; // 2. Define o cloudinary antes de usar
+const multer = require("multer");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+// --- CONFIGURAÇÃO DO CLOUDINARY ---
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+// --- CONFIGURAÇÃO DO ARMAZENAMENTO (STORAGE) ---
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: { 
-    folder: "acervo_escola", // Pasta sem hífens para evitar erros de sintaxe
+    folder: "acervo_escola",
     resource_type: "auto",
-    public_id: (req, file) => `file_${Date.now()}` // Garante nome único para o arquivo
+    public_id: (req, file) => `file_${Date.now()}`
   }
 });
 const upload = multer({ storage });
 
-// ... (Mantenha os modelos iguais) ...
+// --- CONEXÃO COM O MONGODB ---
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log("✅ Conectado ao MongoDB"))
+.catch(err => console.error("❌ Erro ao conectar ao MongoDB:", err));
 
-// --- ROTAS AJUSTADAS ---
+// --- MODELO DO ITEM ---
+const ItemSchema = new mongoose.Schema({
+  title: String,
+  description: String,
+  category: String,
+  year: String,
+  imageUrl: String
+});
+const Item = mongoose.model("Item", ItemSchema);
 
+// --- ROTAS ---
+
+// Rota de Teste (para ver se o servidor ligou)
+app.get("/", (req, res) => res.send("Servidor do Acervo está Online!"));
+
+// Rota de Listagem
+app.get("/items", async (req, res) => {
+  const items = await Item.find();
+  res.json(items);
+});
+
+// Rota de Upload de Itens
 app.post("/items", upload.single("image"), async (req, res) => {
   try {
-    console.log("Recebendo tentativa de upload...");
-    
     if (!req.file) {
-      console.log("❌ Arquivo não recebido pelo servidor.");
       return res.status(400).json({ error: "Arquivo de imagem não encontrado." });
     }
-
-    console.log("☁️ Imagem enviada ao Cloudinary:", req.file.path);
 
     const newItem = new Item({
       title: req.body.title,
       description: req.body.description,
       category: req.body.category,
       year: req.body.year,
-      imageUrl: req.file.path // O link gerado pelo Cloudinary
+      imageUrl: req.file.path 
     });
 
     await newItem.save();
-    console.log("✅ Sucesso: Item salvo no banco de dados!");
     res.json(newItem);
-
   } catch (err) { 
-    // TRATAMENTO DE ERRO ROBUSTO PARA O LOG
-    console.log("❌ ERRO NO PROCESSO:");
-    console.error("Mensagem:", err.message);
-    console.error("Stack:", err.stack);
-    
-    res.status(500).json({ 
-      success: false, 
-      error: err.message,
-      detalhe: "Verifique se o Upload Preset está configurado no Cloudinary" 
-    }); 
+    console.error("Erro no processo:", err.message);
+    res.status(500).json({ success: false, error: err.message }); 
   }
+});
+
+// --- INICIALIZAÇÃO DO SERVIDOR ---
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor rodando na porta ${PORT}`);
 });
