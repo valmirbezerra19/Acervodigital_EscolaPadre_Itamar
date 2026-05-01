@@ -82,72 +82,81 @@ async function uploadCloudinary() {
 
 /* ================= RENDER ================= */
 async function renderAll() {
-  const res = await fetch(`${API_URL}/items`);
-  const data = await res.json();
+  try {
+    const res = await fetch(`${API_URL}/items`);
+    const data = await res.json();
 
-  /* GALERIA */
-  const grid = document.getElementById("main-grid");
-  if (grid) {
-    grid.innerHTML = data
-      .filter(i =>
-        ["ATIVIDADES","DESFILE","EVENTOS","INFRAESTRUTURA","HOMENAGEM"]
-        .includes(i.category.toUpperCase())
-      )
-      .reverse()
-      .map(i => `
-        <div class="gallery-item">
+    /* GALERIA */
+    const grid = document.getElementById("main-grid");
+    if (grid) {
+      grid.innerHTML = data
+        .filter(i =>
+          ["ATIVIDADES","DESFILE","EVENTOS","INFRAESTRUTURA","HOMENAGEM"]
+          .includes(i.category.toUpperCase())
+        )
+        .reverse()
+        .map(i => `
+          <div class="gallery-item">
+            <img src="${i.imageUrl}">
+          </div>
+        `).join("");
+    }
+
+    /* CARROSSEL */
+    const track = document.getElementById("track-home");
+    if (track) {
+      const slides = data
+        .filter(i => i.category === "SLIDE" || i.category === "SLIDE (HOME)")
+        .slice(-7);
+
+      track.innerHTML = slides.length
+        ? slides.map(s => `<img src="${s.imageUrl}">`).join("")
+        : `<img src="IMG/escola.jpg">`;
+    }
+
+    /* LOGO */
+    const logo = data.slice().reverse().find(i => i.category==="LOGO");
+    const logoEl = document.getElementById("main-logo-img");
+    if (logo && logoEl) logoEl.src = logo.imageUrl;
+
+    /* FOTO SOBRE */
+    const sobre = data.slice().reverse().find(i => i.category==="SOBRE" || i.category==="FOTO ESCOLA");
+    const sobreEl = document.getElementById("img-sobre-display");
+    if (sobre && sobreEl) sobreEl.src = sobre.imageUrl;
+
+    /* ADMIN GRID */
+    const admin = document.getElementById("lista-admin");
+    if (admin) {
+      admin.innerHTML = data.map(i => `
+        <div class="admin-item">
+          <input type="checkbox" onchange="toggleSelect('${i._id}')">
           <img src="${i.imageUrl}">
         </div>
       `).join("");
-  }
+    }
 
-  /* CARROSSEL */
-  const track = document.getElementById("track-home");
-  if (track) {
-    const slides = data
-      .filter(i => i.category === "SLIDE (HOME)")
-      .slice(-7);
-
-    track.innerHTML = slides.length
-      ? slides.map(s => `<img src="${s.imageUrl}">`).join("")
-      : `<img src="escola.jpg">`;
-  }
-
-  /* LOGO */
-  const logo = data.slice().reverse().find(i => i.category==="LOGO");
-  if (logo) document.getElementById("main-logo-img").src = logo.imageUrl;
-
-  /* FOTO SOBRE */
-  const sobre = data.slice().reverse().find(i => i.category==="FOTO ESCOLA");
-  if (sobre) document.getElementById("img-sobre-display").src = sobre.imageUrl;
-
-  /* ADMIN GRID */
-  const admin = document.getElementById("lista-admin");
-  if (admin) {
-    admin.innerHTML = data.map(i => `
-      <div class="admin-item">
-        <input type="checkbox" onchange="toggleSelect('${i._id}')">
-        <img src="${i.imageUrl}">
-      </div>
-    `).join("");
-  }
-
-  /* CALENDÁRIO */
-/* CALENDÁRIO */
-  const lista = document.getElementById("calendar-list");
-  if (lista) {
-    lista.innerHTML = EVENTOS_ESCOLARES.map((ev) => {
-      const d = new Date(ev.data);
-      return `
-        <div class="event-row">
-          <div class="event-date">${d.getDate()}</div>
-          <div>
-            <h4>${ev.titulo}</h4>
-            <small>${ev.cat}</small>
-          </div>
-        </div>
-      `;
-    }).join("");
+    /* CALENDÁRIO */
+    const lista = document.getElementById("calendar-list");
+    if (lista) {
+      if (typeof EVENTOS_ESCOLARES !== 'undefined') {
+        lista.innerHTML = EVENTOS_ESCOLARES.map((ev) => {
+          const d = new Date(ev.data);
+          return `
+            <div class="event-row">
+              <div class="event-date">${d.getDate()}</div>
+              <div>
+                <h4>${ev.titulo}</h4>
+                <small>${ev.cat}</small>
+              </div>
+            </div>
+          `;
+        }).join("");
+      } else {
+        lista.innerHTML = "<p style='padding:10px;'>Calendário indisponível no momento.</p>";
+      }
+    }
+  } catch (error) {
+    console.error("Erro ao renderizar itens:", error);
   }
 }
 
@@ -179,8 +188,10 @@ function showPage(id){
   });
 
   const el = document.getElementById(id);
-  el.style.display="block";
-  el.classList.add("active");
+  if (el) {
+    el.style.display="block";
+    el.classList.add("active");
+  }
 
   document.querySelectorAll(".nav-btn")
     .forEach(b=>b.classList.remove("active"));
@@ -191,12 +202,14 @@ function showPage(id){
 function setupYears(){
   let opts="";
   for(let i=2026;i>=1970;i--) opts+=`<option>${i}</option>`;
-  document.getElementById("new-img-year").innerHTML = opts;
+  const yearSelect = document.getElementById("new-img-year");
+  if (yearSelect) yearSelect.innerHTML = opts;
 }
 
 function moveSlide(step){
   const track=document.getElementById("track-home");
-  const slides=track?.querySelectorAll("img");
+  if(!track) return;
+  const slides=track.querySelectorAll("img");
 
   if(!slides||slides.length<=1) return;
 
