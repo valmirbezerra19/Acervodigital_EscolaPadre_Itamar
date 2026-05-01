@@ -130,20 +130,28 @@ async function renderAll() {
       `).join("");
     }
 
-    // 4. Calendário
-  const calList = document.getElementById("calendar-list");
-  if (calList) {
-    calList.innerHTML = EVENTOS_ESCOLARES.map((ev) => {
-      const d = new Date(ev.data + "T00:00:00");
-      return `
-          <div class="event-row">
-            <div class="event-date">${d.getDate()}<br><small>${d.toLocaleDateString("pt-BR", { month: "short" }).toUpperCase()}</small></div>
-            <div>
-              <h4 style="margin:0">${ev.titulo}</h4>
-              <small style="color:var(--accent)">${ev.cat}</small>
+    /* CALENDÁRIO */
+    const lista = document.getElementById("calendar-list");
+    if (lista) {
+      if (typeof EVENTOS_ESCOLARES !== 'undefined') {
+        lista.innerHTML = EVENTOS_ESCOLARES.map((ev) => {
+          const d = new Date(ev.data);
+          return `
+            <div class="event-row">
+              <div class="event-date">${d.getDate()}</div>
+              <div>
+                <h4>${ev.titulo}</h4>
+                <small>${ev.cat}</small>
+              </div>
             </div>
-          </div>`;
-    }).join("");
+          `;
+        }).join("");
+      } else {
+        lista.innerHTML = "<p style='padding:10px;'>Calendário indisponível no momento.</p>";
+      }
+    }
+  } catch (error) {
+    console.error("Erro ao renderizar itens:", error);
   }
 }
 
