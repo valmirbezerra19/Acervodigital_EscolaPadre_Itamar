@@ -114,8 +114,8 @@ async function renderAll() {
   }
 
   /* LOGO */
-  const logo = data.slice().reverse().find(i => i.category==="LOGO");
-  if (logo) document.getElementById("main-logo-img").src = logo.imageUrl;
+  //const logo = data.slice().reverse().find(i => i.category==="LOGO");
+  //if (logo) document.getElementById("main-logo-img").src = logo.imageUrl;
 
   /* FOTO SOBRE */
   const sobre = data.slice().reverse().find(i => i.category==="FOTO ESCOLA");
