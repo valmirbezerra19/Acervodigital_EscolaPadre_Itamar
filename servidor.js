@@ -7,7 +7,13 @@ const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 
 const app = express();
-app.use(cors());
+
+// --- AJUSTE DE CORS ---
+// Liberando o seu domínio específico para evitar "Erro de conexão" no navegador
+app.use(cors({
+  origin: "https://valmirbezerra19.github.io"
+}));
+
 app.use(express.json());
 
 // --- CONFIGURAÇÃO DO CLOUDINARY ---
@@ -22,7 +28,7 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: { 
     folder: "acervo_escola",
-    upload_preset: "acervo_itamar", // O preset que conferimos no seu painel
+    upload_preset: "acervo_itamar", 
     resource_type: "auto",
     allowed_formats: ['jpg', 'png', 'jpeg', 'gif', 'webp']
   }
@@ -30,6 +36,7 @@ const storage = new CloudinaryStorage({
 const upload = multer({ storage });
 
 // --- CONEXÃO COM O MONGODB ---
+// Usando a variável MONGODB_URI que configuramos no Railway
 mongoose.connect(process.env.MONGODB_URI)
 .then(() => console.log("✅ Conectado ao MongoDB"))
 .catch(err => console.error("❌ Erro ao conectar ao MongoDB:", err));
@@ -57,11 +64,15 @@ app.post("/login", (req, res) => {
 });
 
 app.get("/items", async (req, res) => {
-  const items = await Item.find();
-  res.json(items);
+  try {
+    const items = await Item.find();
+    res.json(items);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// Rota de Upload com Log de Erro detalhado
+// Rota de Upload com Log de Erro Corrigido para JSON
 app.post("/items", upload.single("image"), async (req, res) => {
   try {
     if (!req.file) {
@@ -77,9 +88,10 @@ app.post("/items", upload.single("image"), async (req, res) => {
     });
 
     await newItem.save();
+    console.log("✅ Upload e salvamento realizados com sucesso!");
     res.json(newItem);
   } catch (err) { 
-    // CORREÇÃO PARA O LOG [object Object]:
+    // AGORA OS LOGS DO RAILWAY MOSTRARÃO O ERRO REAL EM TEXTO
     console.error("❌ ERRO DETALHADO NO UPLOAD:", JSON.stringify(err, null, 2));
     res.status(500).json({ success: false, error: err.message }); 
   }
