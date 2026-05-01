@@ -9,8 +9,10 @@ const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const app = express();
 
 // --- AJUSTE DE CORS ---
+// --- AJUSTE DE CORS ---
 app.use(cors({
-  origin: "https://valmirbezerra19.github.io"
+  origin: "https://valmirbezerra19.github.io",
+  methods: ['GET', 'POST', 'DELETE', 'PUT', 'OPTIONS']
 }));
 
 app.use(express.json());
