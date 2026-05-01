@@ -1,6 +1,7 @@
 {
-  "name": "backend-acervo",
+  "name": "acervodigital-escolapadre-itamar",
   "version": "1.0.0",
+  "description": "Backend para o acervo digital da escola",
   "main": "servidor.js",
   "scripts": {
     "start": "node servidor.js"
