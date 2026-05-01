@@ -1,9 +1,9 @@
-require("dotenv").config(); // 1. Carrega as variáveis do .env
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
-const cloudinary = require("cloudinary").v2; // 2. Define o cloudinary antes de usar
+const cloudinary = require("cloudinary").v2;
 const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 
@@ -49,8 +49,18 @@ const Item = mongoose.model("Item", ItemSchema);
 
 // --- ROTAS ---
 
-// Rota de Teste (para ver se o servidor ligou)
+// Rota de Teste
 app.get("/", (req, res) => res.send("Servidor do Acervo está Online!"));
+
+// Rota de Login (ADICIONADA PARA FUNCIONAR COM O SCRIPT.JS)
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+  if (email === "admin@escola.com" && password === "123456") {
+    return res.json({ success: true });
+  } else {
+    return res.status(401).json({ success: false, message: "Credenciais inválidas" });
+  }
+});
 
 // Rota de Listagem
 app.get("/items", async (req, res) => {
@@ -58,13 +68,10 @@ app.get("/items", async (req, res) => {
   res.json(items);
 });
 
-// Rota de Upload de Itens
+// Rota de Upload
 app.post("/items", upload.single("image"), async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: "Arquivo de imagem não encontrado." });
-    }
-
+    if (!req.file) return res.status(400).json({ error: "Arquivo não encontrado" });
     const newItem = new Item({
       title: req.body.title,
       description: req.body.description,
@@ -72,17 +79,13 @@ app.post("/items", upload.single("image"), async (req, res) => {
       year: req.body.year,
       imageUrl: req.file.path 
     });
-
     await newItem.save();
     res.json(newItem);
   } catch (err) { 
-    console.error("Erro no processo:", err.message);
     res.status(500).json({ success: false, error: err.message }); 
   }
 });
 
-// --- INICIALIZAÇÃO DO SERVIDOR ---
+// --- INICIALIZAÇÃO ---
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor rodando na porta ${PORT}`);
-});
+app.listen(PORT, () => console.log(`🚀 Servidor rodando na porta ${PORT}`));
