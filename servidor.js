@@ -22,21 +22,24 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// --- CONFIGURAÇÃO DO STORAGE ---
+// --- CONFIGURAÇÃO DO STORAGE (ATUALIZADA PARA VÍDEOS) ---
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req, file) => {
     return {
       folder: "acervo_escola",
       upload_preset: "acervo_itamar", 
-      resource_type: "auto",
-      allowed_formats: ['jpg', 'png', 'jpeg', 'gif', 'webp']
+      resource_type: "auto", // Permite detectar se é imagem ou vídeo automaticamente
+      allowed_formats: ['jpg', 'png', 'jpeg', 'gif', 'webp', 'mp4', 'mov', 'avi', 'mkv']
     };
   }
 });
 
-// Middleware do Multer configurado para capturar erros
-const upload = multer({ storage: storage }).single("image");
+// Middleware do Multer - Aumentado limite para 50MB para suportar vídeos
+const upload = multer({ 
+  storage: storage,
+  limits: { fileSize: 50 * 1024 * 1024 } 
+}).single("image");
 
 // --- CONEXÃO COM O MONGODB ---
 mongoose.connect(process.env.MONGODB_URI)
@@ -77,7 +80,6 @@ app.get("/items", async (req, res) => {
 // Rota de Upload Reescrita para detalhar o erro no Railway
 app.post("/items", (req, res) => {
   upload(req, res, async function (err) {
-    // Se houver erro no Multer ou Cloudinary, este bloco captura antes de travar
     if (err) {
       console.error("❌ ERRO DETALHADO NO CLOUDINARY/MULTER:", JSON.stringify(err, null, 2));
       return res.status(500).json({ success: false, error: err.message, details: err });
