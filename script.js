@@ -163,7 +163,7 @@ function gerarCalendario() {
   const evs = [
     { d: "10", m: "FEV", t: "Início das Aulas", i: "fa-school" },
     { d: "07", m: "SET", t: "Desfile Cívico", i: "fa-flag" },
-    { d: "10", m: "DEZ", t: "Final das aulas", i: "fa-telegrama" },
+    { d: "10", m: "DEZ", t: "Final das aulas", i: "fa-battery-full" },
     { d: "15", m: "DEZ", t: "Formatura", i: "fa-graduation-cap" },
   ];
   
