@@ -1,146 +1,212 @@
-<!doctype html>
-<html lang="pt-br">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Acervo Digital | Padre Itamar</title>
+const CONFIG = {
+  db: "AcervoPadreItamar_v12",
+  store: "arquivos",
+  cloud: "defxlhmma",
+  preset: "acervo_itamar",
+};
 
-<link rel="stylesheet" href="style.css" />
-<link rel="icon" type="image/png" href="img/logo.png" />
+const API_URL = "https://agile-cooperation-production.up.railway.app";
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+let currentSlide = 0;
+let itensSelecionados = new Set();
 
-</head>
+// =========================
+// 🚀 INIT
+// =========================
+document.addEventListener("DOMContentLoaded", () => {
+  showPage("home");
+  setupYears();
+  renderAll();
 
-<body>
+  setInterval(() => moveSlide(1), 5000);
+  setInterval(updateClock, 1000);
+});
 
-<header class="glass-header">
-<nav class="container nav-wrapper">
+// =========================
+// 🔥 MENU FUNCIONANDO
+// =========================
+function showPage(id) {
+  document.querySelectorAll(".page").forEach((p) => {
+    p.classList.remove("active");
+    p.style.display = "none";
+  });
 
-<div class="logo-area" onclick="showPage('home')">
-<div class="logo-circle">
-<img src="img/logo.png" id="main-logo-img">
-</div>
-<div class="brand-text">
-<h1>ACERVO <span>DIGITAL</span></h1>
-<p>E.E.F.M Padre Itamar Luiz da Costa</p>
-</div>
-</div>
+  const page = document.getElementById(id);
+  if (page) {
+    page.style.display = "block";
+    page.classList.add("active");
+  }
 
-<div class="nav-menu">
-<button onclick="showPage('home')" class="nav-btn active" id="btn-home">INÍCIO</button>
-<button onclick="showPage('galeria')" class="nav-btn" id="btn-galeria">GALERIA</button>
-<button onclick="showPage('calendario')" class="nav-btn" id="btn-calendario">CALENDÁRIO</button>
-<button onclick="showPage('sobre')" class="nav-btn" id="btn-sobre">SOBRE</button>
-<button onclick="showPage('login')" class="admin-icon"><i class="fas fa-shield-alt"></i></button>
-</div>
+  document.querySelectorAll(".nav-btn").forEach((b) => {
+    b.classList.remove("active");
+  });
 
-</nav>
-</header>
+  document.getElementById("btn-" + id)?.classList.add("active");
 
-<main class="main-content">
+  window.scrollTo(0, 0);
+}
 
-<!-- HOME -->
-<section id="home" class="page active">
-<div class="container">
+// =========================
+// 🔐 LOGIN
+// =========================
+async function efetuarLogin() {
+  const email = document.getElementById("adm-email").value;
+  const pass = document.getElementById("adm-pass").value;
 
-<div class="carousel-wrapper glass-card">
-<div class="carousel-track" id="track-home"></div>
-</div>
+  const res = await fetch(`${API_URL}/login`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ email, password: pass }),
+  });
 
-<div class="home-cards-grid">
-<div class="glass-card clickable-card" onclick="showPage('galeria')">
-<i class="fas fa-landmark"></i>
-<h3>Patrimônio Histórico</h3>
-</div>
+  const data = await res.json();
 
-<div class="glass-card clickable-card" onclick="showPage('calendario')">
-<i class="fas fa-graduation-cap"></i>
-<h3>Calendário Escolar</h3>
-</div>
+  if (data.success) {
+    document.getElementById("login-box").style.display = "none";
+    document.getElementById("admin-panel").style.display = "block";
+    localStorage.setItem("admin_logado", "true");
+    renderAll();
+  } else {
+    alert("Login inválido");
+  }
+}
 
-<div class="glass-card clickable-card" onclick="showPage('sobre')">
-<i class="fas fa-users"></i>
-<h3>Nossa História</h3>
-</div>
-</div>
+// =========================
+// ☁️ UPLOAD
+// =========================
+async function uploadCloudinary() {
+  const file = document.getElementById("new-img-file").files[0];
+  const cat = document.getElementById("new-img-cat").value;
+  const ano = document.getElementById("new-img-year").value;
 
-</div>
-</section>
+  if (!file) return alert("Selecione uma imagem");
 
-<!-- GALERIA -->
-<section id="galeria" class="page container">
-<div class="elegant-grid" id="main-grid"></div>
-</section>
+  const formData = new FormData();
+  formData.append("image", file);
+  formData.append("category", cat);
+  formData.append("year", ano);
 
-<!-- CALENDARIO -->
-<section id="calendario" class="page container">
-<div id="calendar-list"></div>
-</section>
+  const res = await fetch(`${API_URL}/items`, {
+    method: "POST",
+    body: formData,
+  });
 
-<!-- SOBRE -->
-<section id="sobre" class="page container">
-<div class="glass-card">
-<img id="img-sobre-display" src="escola.jpg" style="width:100%;border-radius:15px;">
-</div>
-</section>
+  if (res.ok) {
+    alert("Upload feito");
+    renderAll();
+  } else {
+    alert("Erro no upload");
+  }
+}
 
-<!-- ADMIN -->
-<section id="login" class="page container">
+// =========================
+// 🎯 RENDER
+// =========================
+async function renderAll() {
+  const res = await fetch(`${API_URL}/items`);
+  const data = await res.json();
 
-<div id="login-box" class="glass-card">
-<input id="adm-email" placeholder="email">
-<input id="adm-pass" type="password" placeholder="senha">
-<button onclick="efetuarLogin()" class="btn-primary">ENTRAR</button>
-</div>
+  // 🔹 GALERIA
+  const grid = document.getElementById("main-grid");
+  if (grid) {
+    grid.innerHTML = data
+      .filter(i => ["ATIVIDADES","DESFILE","EVENTOS","INFRAESTRUTURA","HOMENAGEM"].includes(i.category))
+      .reverse()
+      .map(item => `
+        <div class="gallery-item">
+          <img src="${item.imageUrl}" onclick="window.open('${item.imageUrl}')">
+          <p>${item.title}</p>
+        </div>
+      `).join("");
+  }
 
-<div id="admin-panel" style="display:none">
+  // 🔹 CARROSSEL (MAX 7)
+  const track = document.getElementById("track-home");
+  if (track) {
+    const slides = data
+      .filter(i => i.category === "SLIDE (HOME)")
+      .slice(-7);
 
-<button onclick="alterarMinhaSenha()" class="btn-admin">MUDAR SENHA</button>
-<button onclick="cadastrarNovoAdmin()" class="btn-admin">NOVO USUÁRIO</button>
-<button onclick="logout()" class="btn-admin">SAIR</button>
+    track.innerHTML = slides.length
+      ? slides.map(s => `<img src="${s.imageUrl}">`).join("")
+      : `<img src="escola.jpg">`;
+  }
 
-<div class="glass-card">
-<input type="file" id="new-img-file" multiple>
+  // 🔹 LOGO
+  const logo = data.slice().reverse().find(i => i.category === "LOGO");
+  if (logo) document.getElementById("main-logo-img").src = logo.imageUrl;
 
-<select id="new-img-cat">
-<option value="SLIDE (HOME)">SLIDE (HOME)</option>
-<option value="LOGO">LOGO</option>
-<option value="FOTO ESCOLA">FOTO ESCOLA</option>
-</select>
+  // 🔹 FOTO SOBRE
+  const sobre = data.slice().reverse().find(i => i.category === "FOTO ESCOLA");
+  if (sobre) document.getElementById("img-sobre-display").src = sobre.imageUrl;
 
-<select id="new-img-year"></select>
+  // 🔹 ADMIN GRID
+  const admin = document.getElementById("lista-admin");
+  if (admin) {
+    admin.innerHTML = data.map(item => `
+      <div class="admin-item">
+        <input type="checkbox" onchange="toggleSelect('${item._id}')">
+        <img src="${item.imageUrl}">
+      </div>
+    `).join("");
+  }
+}
 
-<button onclick="uploadCloudinary()" class="btn-primary">ENVIAR</button>
-</div>
+// =========================
+// 🗑️ SELEÇÃO + EXCLUSÃO
+// =========================
+function toggleSelect(id) {
+  if (itensSelecionados.has(id)) {
+    itensSelecionados.delete(id);
+  } else {
+    itensSelecionados.add(id);
+  }
+}
 
-<button onclick="excluirSelecionados()" class="btn-admin">EXCLUIR</button>
+async function excluirSelecionados() {
+  if (!itensSelecionados.size) return alert("Selecione itens");
 
-<div id="lista-admin" class="admin-grid-selection"></div>
+  if (!confirm("Deseja excluir selecionados?")) return;
 
-</div>
+  await Promise.all(
+    [...itensSelecionados].map(id =>
+      fetch(`${API_URL}/items/${id}`, { method: "DELETE" })
+    )
+  );
 
-</section>
+  itensSelecionados.clear();
+  renderAll();
+}
 
-</main>
+// =========================
+// 📅 UTIL
+// =========================
+function updateClock() {
+  const el = document.getElementById("cal-clock");
+  if (el) el.innerText = new Date().toLocaleTimeString("pt-BR");
+}
 
-<footer class="footer-modern">
-<div class="container footer-grid">
+function setupYears() {
+  let opts = "";
+  for (let i = 2026; i >= 1970; i--) {
+    opts += `<option value="${i}">${i}</option>`;
+  }
 
-<div>
-<h3>ESCOLA PADRE ITAMAR</h3>
-<p>Imaruí - SC</p>
-<p>Desenvolvido por Valmir Ap. Bezerra</p>
-</div>
+  document.getElementById("year-selector").innerHTML =
+    `<option value="TODOS">Todos</option>` + opts;
 
-<div>
-<a href="https://wa.me/5548998118259"><i class="fab fa-whatsapp"></i></a>
-</div>
+  document.getElementById("new-img-year").innerHTML = opts;
+}
 
-</div>
-</footer>
+// =========================
+// 🎞️ CARROSSEL
+// =========================
+function moveSlide(step) {
+  const track = document.getElementById("track-home");
+  const slides = track?.querySelectorAll("img");
 
-<script src="script.js"></script>
-</body>
-</html>
+  if (!slides || slides.length <= 1) return;
+
+  currentSlide = (currentSlide + step) % slides.length;
+  track.style.transform = `translateX(-${currentSlide * 100}%)`;
+}
