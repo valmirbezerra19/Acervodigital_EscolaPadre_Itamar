@@ -100,33 +100,29 @@ h1, h2 {
     margin-left: 10px;
 }
 
-/* Conteúdo Principal e Páginas */
+/* Conteúdo Principal */
 .main-content {
     margin-top: 100px;
     flex: 1;
     padding-bottom: 40px;
 }
 
-/* Lógica de Ocultação Estrita: TODAS as seções que agem como páginas */
+/* 
+   LÓGICA DE EXIBIÇÃO ESTRITA 
+   Esconde todas as seções por padrão e só mostra a que tiver a classe .active
+*/
 #home, #galeria, #calendario, #sobre, #login, .page, .sobre-container {
     display: none !important;
 }
 
-/* Exibição apenas quando a classe active estiver presente */
-#home.active, #galeria.active, #calendario.active, #sobre.active, #login.active, .page.active {
+#home.active, #galeria.active, #calendario.active, #sobre.active, #login.active, .page.active, .sobre-container.active {
     display: block !important;
     animation: fadeIn 0.4s ease;
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .glass-card {
@@ -250,16 +246,6 @@ h1, h2 {
     transform: scale(1.05);
 }
 
-.badge-accent {
-    color: var(--accent);
-    font-weight: 700;
-    border: 2px solid var(--accent);
-    padding: 2px 8px;
-    border-radius: 6px;
-    display: inline-block;
-    margin-bottom: 5px;
-}
-
 /* Calendário */
 .event-row {
     display: flex;
@@ -319,7 +305,6 @@ h1, h2 {
     width: 100%;
     display: block;
     object-fit: cover;
-    transition: transform 0.5s ease;
 }
 
 .sobre-historia p {
@@ -329,54 +314,17 @@ h1, h2 {
 }
 
 /* Painel Administrativo */
-.admin-main-container {
-    border: 2px solid var(--accent);
-    margin-top: 20px;
-}
-
-.admin-grid-selection {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 10px;
-    max-height: 400px;
-    overflow-y: auto;
-    padding: 10px;
-    background: #f9f9f9;
-    border-radius: 10px;
-}
-
-.admin-grid-selection::-webkit-scrollbar {
-    width: 8px;
-}
-
-.admin-grid-selection::-webkit-scrollbar-track {
-    background: #eee;
-    border-radius: 10px;
-}
-
-.admin-grid-selection::-webkit-scrollbar-thumb {
-    background: var(--accent);
-    border-radius: 10px;
-}
-
 .admin-item {
     position: relative;
     border-radius: 8px;
     overflow: hidden;
     border: 1px solid #ddd;
-    transition: transform 0.2s;
-}
-
-.admin-item:hover {
-    transform: scale(1.02);
-    border-color: var(--danger);
 }
 
 .admin-item img {
     width: 100%;
     height: 80px;
     object-fit: cover;
-    display: block;
 }
 
 .admin-item input[type="checkbox"] {
@@ -386,7 +334,6 @@ h1, h2 {
     width: 20px;
     height: 20px;
     accent-color: var(--danger);
-    cursor: pointer;
     z-index: 2;
 }
 
@@ -402,29 +349,6 @@ h1, h2 {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 20px;
-}
-
-.footer-contacts a {
-    display: block;
-    color: #bdc3c7;
-    text-decoration: none;
-    margin-bottom: 5px;
-}
-
-.footer-social-icons {
-    display: flex;
-    gap: 15px;
-}
-
-.footer-social-icons a {
-    color: white;
-    font-size: 1.5rem;
-    transition: 0.3s;
-}
-
-.footer-social-icons a:hover {
-    color: var(--accent);
 }
 
 /* Formulários e Botões */
@@ -434,7 +358,6 @@ h1, h2 {
     margin: 10px 0;
     border-radius: 8px;
     border: 1px solid #ddd;
-    outline-color: var(--accent);
 }
 
 .btn-primary {
@@ -446,59 +369,13 @@ h1, h2 {
     border-radius: 8px;
     cursor: pointer;
     font-weight: bold;
-    transition: 0.3s;
 }
 
-.btn-primary:hover {
-    filter: brightness(1.1);
-}
-
-.btn-danger-small {
-    background: var(--danger);
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-/* --- MEDIA QUERIES (Responsividade) --- */
+/* Responsividade */
 @media (max-width: 768px) {
-    .nav-wrapper {
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .brand-text {
-        text-align: center;
-    }
-
-    .main-content {
-        margin-top: 160px;
-    }
-
-    .sobre-topo {
-        grid-template-columns: 1fr;
-    }
-
-    .school-photo-frame {
-        border-radius: 20px;
-        order: -1;
-        margin-bottom: 20px;
-    }
-
-    .carousel-wrapper {
-        height: 350px;
-    }
-
-    .footer-grid {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .gallery-filter-bar {
-        flex-direction: column;
-        align-items: stretch;
-    }
+    .nav-wrapper { flex-direction: column; gap: 15px; }
+    .main-content { margin-top: 160px; }
+    .sobre-topo { grid-template-columns: 1fr; }
+    .school-photo-frame { order: -1; margin-bottom: 20px; }
+    .footer-grid { flex-direction: column; text-align: center; }
 }
