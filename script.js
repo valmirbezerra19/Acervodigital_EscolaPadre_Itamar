@@ -91,7 +91,16 @@ async function uploadCloudinary() {
   const btn = document.getElementById("btn-upload");
 
   if (!fileInput.files.length) return alert("Selecione fotos");
+// --- ALTERAÇÃO: VALIDAÇÃO DE TAMANHO (50MB) ---
+  const file = fileInput.files[0];
+  const maxSize = 50 * 1024 * 1024; // 50MB em bytes
 
+  if (file.size > maxSize) {
+    alert("Este arquivo ultrapassa o tamanho permitido de 50MB. Por favor, escolha um arquivo menor.");
+    fileInput.value = ""; 
+    return; // Interrompe o envio
+  }
+  
   btn.innerText = "ENVIANDO...";
   btn.disabled = true;
 
