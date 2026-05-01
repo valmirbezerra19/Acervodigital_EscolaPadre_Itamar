@@ -133,9 +133,10 @@ async function renderAll() {
   }
 
   /* CALENDÁRIO */
+/* CALENDÁRIO */
   const lista = document.getElementById("calendar-list");
   if (lista) {
-    lista.innerHTML = EVENTOS_ESCOLARES.map(ev => {
+    lista.innerHTML = EVENTOS_ESCOLARES.map((ev) => {
       const d = new Date(ev.data);
       return `
         <div class="event-row">
