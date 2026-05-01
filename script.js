@@ -144,10 +144,22 @@ async function renderAll() {
     const response = await fetch(`${API_URL}/items`);
     const data = await response.json();
 
+    // --- SEPARAÇÃO POR CATEGORIAS ---
+    const catsGaleria = ["ATIVIDADES", "DESFILE", "EVENTOS", "INFRAESTRUTURA", "HOMENAGEM"];
+    const itensGaleria = data.filter(item => catsGaleria.includes(item.category.toUpperCase()));
+    
+    // Filtra as últimas 5 para o Slide
+    const itensSlide = data.filter(item => item.category === "SLIDE (HOME)").slice(-5);
+    
+    // Pega a mais recente para itens únicos
+    const itemLogo = data.slice().reverse().find(item => item.category === "LOGO");
+    const itemFavicon = data.slice().reverse().find(item => item.category === "FAVICON");
+    const itemSobre = data.slice().reverse().find(item => item.category === "FOTO SOBRE");
+
     // 1. Galeria
     const grid = document.getElementById("main-grid");
     if (grid) {
-      grid.innerHTML = data
+      grid.innerHTML = itensGaleria
         .slice() 
         .reverse()
         .map(
@@ -165,23 +177,34 @@ async function renderAll() {
     // 2. Carrossel
     const track = document.getElementById("track-home");
     if (track) {
-      const slides = data.slice(-5);
       track.innerHTML =
-        slides.length > 0
-          ? slides.map((s) => `<img src="${s.imageUrl}">`).join("")
+        itensSlide.length > 0
+          ? itensSlide.map((s) => `<img src="${s.imageUrl}">`).join("")
           : `<img src="escola.jpg">`;
     }
 
-    // 3. Painel Admin
+    // 3. Atualizar Mídias de Identidade (Logo, Favicon, Sobre)
+    const logoImg = document.getElementById("img-logo");
+    if (logoImg && itemLogo) logoImg.src = itemLogo.imageUrl;
+
+    const faviconLink = document.querySelector("link[rel*='icon']");
+    if (faviconLink && itemFavicon) faviconLink.href = itemFavicon.imageUrl;
+
+    const imgSobre = document.getElementById("img-sobre");
+    if (imgSobre && itemSobre) imgSobre.src = itemSobre.imageUrl;
+
+    // 4. Painel Admin (Lista tudo para gestão)
     const adminList = document.getElementById("lista-admin");
     if (adminList) {
       adminList.innerHTML = data
+        .slice()
+        .reverse()
         .map(
           (item) => `
           <div class="admin-item">
             <img src="${item.imageUrl}">
             <div style="font-size:9px; text-align:center; padding: 2px;">
-                ${item.title}
+                ${item.category} - ${item.year}
             </div>
           </div>`,
         )
@@ -191,7 +214,7 @@ async function renderAll() {
     console.error("Erro ao renderizar dados do Railway:", err);
   }
 
-  // 4. Calendário
+  // 5. Calendário
   const calList = document.getElementById("calendar-list");
   if (calList) {
     calList.innerHTML = EVENTOS_ESCOLARES.map((ev) => {
