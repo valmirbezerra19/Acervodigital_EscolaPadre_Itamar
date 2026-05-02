@@ -8,12 +8,12 @@ const API_URL = "https://agile-cooperation-production.up.railway.app";
 let currentSlide = 0;
 let itensSelecionados = new Set();
 
+// FILTROS
 let allItems = [];
 let currentCat = 'TODAS';
 let currentYear = 'TODOS';
 
 /* ================= CALENDÁRIO (CORRIGIDO) ================= */
-
 const EVENTOS_ESCOLARES = [
   { data: "2026-02-09", titulo: "Início do Ano Letivo", cat: "ACADÊMICO" },
   { data: "2026-03-27", titulo: "Reunião Pedagógica", cat: "PEDAGÓGICO" },
@@ -22,13 +22,14 @@ const EVENTOS_ESCOLARES = [
   { data: "2026-09-07", titulo: "Desfile de Independência", cat: "CÍVICO" },
   { data: "2026-11-20", titulo: "Mostra Cultural 50 Anos", cat: "CULTURAL" },
   { data: "2026-12-16", titulo: "Encerramento e Formatura", cat: "SOLENIDADE" },
+  { data: "2026-12-30", titulo: "Fechamento Administrativo", cat: "ADMINISTRATIVO" }
 ];
 
 function renderCalendar() {
   const calList = document.getElementById("calendar-list");
   if (!calList) return;
 
-  calList.innerHTML = EVENTOS_ESCOLARES.map((ev) => {
+  calList.innerHTML = EVENTOS_ESCOLARES.map(ev => {
     const d = new Date(ev.data + "T00:00:00");
 
     return `
@@ -37,6 +38,7 @@ function renderCalendar() {
           ${d.getDate()}<br>
           <small>${d.toLocaleDateString("pt-BR", { month: "short" }).toUpperCase()}</small>
         </div>
+
         <div>
           <h4>${ev.titulo}</h4>
           <small>${ev.cat}</small>
@@ -46,23 +48,25 @@ function renderCalendar() {
   }).join("");
 }
 
-function updateClock(){
-  const c = document.getElementById("cal-clock");
-  if(c) c.innerText = new Date().toLocaleTimeString("pt-BR");
+function updateClock() {
+  const clock = document.getElementById("cal-clock");
+  if (clock) {
+    clock.innerText = new Date().toLocaleTimeString("pt-BR");
+  }
 }
 
 /* ================= INIT ================= */
-
 window.onload = () => {
   setupYears();
   verificarLogin();
+  renderAll();
 
-  renderCalendar(); // 🔥 CORREÇÃO PRINCIPAL
+  // 🔥 CORREÇÃO PRINCIPAL
+  renderCalendar();
   setInterval(updateClock, 1000);
 };
 
 /* ================= LOGIN ================= */
-
 function verificarLogin() {
   const logado = localStorage.getItem("admin_logado");
 
@@ -107,7 +111,6 @@ function logout() {
 }
 
 /* ================= UPLOAD ================= */
-
 async function uploadCloudinary() {
   const file = document.getElementById("new-img-file").files[0];
   const cat = document.getElementById("new-img-cat").value;
@@ -126,12 +129,11 @@ async function uploadCloudinary() {
 }
 
 /* ================= RENDER ================= */
-
 async function renderAll() {
   try {
     const res = await fetch(`${API_URL}/items`);
     const data = await res.json();
-
+    
     allItems = data;
 
     renderGaleria();
@@ -151,7 +153,7 @@ async function renderAll() {
     const logoEl = document.getElementById("main-logo-img");
     if (logo && logoEl) logoEl.src = logo.imageUrl;
 
-    const sobre = data.slice().reverse().find(i => i.category==="SOBRE" || i.category==="FOTO ESCOLA");
+    const sobre = data.slice().reverse().find(i => i.category==="SOBRE");
     const sobreEl = document.getElementById("img-sobre-display");
     if (sobre && sobreEl) sobreEl.src = sobre.imageUrl;
 
@@ -169,8 +171,7 @@ async function renderAll() {
   }
 }
 
-/* ================= RESTANTE (INALTERADO) ================= */
-
+/* ================= GALERIA ================= */
 function renderGaleria() {
   const grid = document.getElementById("main-grid");
   if (!grid) return;
@@ -210,6 +211,7 @@ function filtrarAno(ano) {
   renderGaleria();
 }
 
+/* ================= DELETE ================= */
 function toggleSelect(id){
   itensSelecionados.has(id)
     ? itensSelecionados.delete(id)
@@ -225,7 +227,8 @@ async function excluirSelecionados() {
         fetch(`${API_URL}/items/${id}`, { method: "DELETE" })
       )
     );
-    alert("Exclusão finalizada!");
+    
+    alert("Excluído!");
   } catch (error) {
     console.error(error);
   }
@@ -234,6 +237,7 @@ async function excluirSelecionados() {
   renderAll();
 }
 
+/* ================= UI ================= */
 function showPage(id){
   document.querySelectorAll(".page").forEach(p=>{
     p.classList.remove("active");
