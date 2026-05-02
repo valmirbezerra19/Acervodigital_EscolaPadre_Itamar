@@ -8,12 +8,11 @@ const API_URL = "https://agile-cooperation-production.up.railway.app";
 let currentSlide = 0;
 let itensSelecionados = new Set();
 
-// FILTROS
 let allItems = [];
 let currentCat = 'TODAS';
 let currentYear = 'TODOS';
 
-/* ================= CALENDÁRIO (CORRIGIDO) ================= */
+/* ================= CALENDÁRIO ================= */
 const EVENTOS_ESCOLARES = [
   { data: "2026-02-09", titulo: "Início do Ano Letivo", cat: "ACADÊMICO" },
   { data: "2026-03-27", titulo: "Reunião Pedagógica", cat: "PEDAGÓGICO" },
@@ -38,21 +37,22 @@ function renderCalendar() {
           ${d.getDate()}<br>
           <small>${d.toLocaleDateString("pt-BR", { month: "short" }).toUpperCase()}</small>
         </div>
-
         <div>
-          <h4>${ev.titulo}</h4>
-          <small>${ev.cat}</small>
+          <h4 style="margin:0">${ev.titulo}</h4>
+          <small style="color:var(--accent)">${ev.cat}</small>
         </div>
       </div>
     `;
   }).join("");
 }
 
-function updateClock() {
+function iniciarRelogioCalendario() {
   const clock = document.getElementById("cal-clock");
-  if (clock) {
+  if (!clock) return;
+
+  setInterval(() => {
     clock.innerText = new Date().toLocaleTimeString("pt-BR");
-  }
+  }, 1000);
 }
 
 /* ================= INIT ================= */
@@ -60,10 +60,6 @@ window.onload = () => {
   setupYears();
   verificarLogin();
   renderAll();
-
-  // 🔥 CORREÇÃO PRINCIPAL
-  renderCalendar();
-  setInterval(updateClock, 1000);
 };
 
 /* ================= LOGIN ================= */
@@ -254,6 +250,12 @@ function showPage(id){
     .forEach(b=>b.classList.remove("active"));
 
   document.getElementById("btn-"+id)?.classList.add("active");
+
+  // 🔥 AQUI É A CHAVE (SEM QUEBRAR O RESTO)
+  if (id === "calendario") {
+    renderCalendar();
+    iniciarRelogioCalendario();
+  }
 }
 
 function setupYears() {
