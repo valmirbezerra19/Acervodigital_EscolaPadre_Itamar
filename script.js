@@ -8,58 +8,24 @@ const API_URL = "https://agile-cooperation-production.up.railway.app";
 let currentSlide = 0;
 let itensSelecionados = new Set();
 
+// NOVAS VARIÁVEIS PARA A GALERIA
 let allItems = [];
-let currentCat = 'TODAS';
-let currentYear = 'TODOS';
-
-/* ================= CALENDÁRIO ================= */
-const EVENTOS_ESCOLARES = [
-  { data: "2026-02-09", titulo: "Início do Ano Letivo", cat: "ACADÊMICO" },
-  { data: "2026-03-27", titulo: "Reunião Pedagógica", cat: "PEDAGÓGICO" },
-  { data: "2026-05-10", titulo: "Homenagem Dia das Mães", cat: "SOCIAL" },
-  { data: "2026-06-20", titulo: "Festa Junina", cat: "EVENTO" },
-  { data: "2026-09-07", titulo: "Desfile de Independência", cat: "CÍVICO" },
-  { data: "2026-11-20", titulo: "Mostra Cultural 50 Anos", cat: "CULTURAL" },
-  { data: "2026-12-16", titulo: "Encerramento e Formatura", cat: "SOLENIDADE" },
-  { data: "2026-12-30", titulo: "Fechamento Administrativo", cat: "ADMINISTRATIVO" }
-];
-
-function renderCalendar() {
-  const calList = document.getElementById("calendar-list");
-  if (!calList) return;
-
-  calList.innerHTML = EVENTOS_ESCOLARES.map(ev => {
-    const d = new Date(ev.data + "T00:00:00");
-
-    return `
-      <div class="event-row">
-        <div class="event-date">
-          ${d.getDate()}<br>
-          <small>${d.toLocaleDateString("pt-BR", { month: "short" }).toUpperCase()}</small>
-        </div>
-        <div>
-          <h4 style="margin:0">${ev.titulo}</h4>
-          <small style="color:var(--accent)">${ev.cat}</small>
-        </div>
-      </div>
-    `;
-  }).join("");
-}
-
-function iniciarRelogioCalendario() {
-  const clock = document.getElementById("cal-clock");
-  if (!clock) return;
-
-  setInterval(() => {
-    clock.innerText = new Date().toLocaleTimeString("pt-BR");
-  }, 1000);
-}
+let currentCat = "TODAS";
+let currentYear = "TODOS";
 
 /* ================= INIT ================= */
 window.onload = () => {
   setupYears();
   verificarLogin();
+
+  // 1. O CALENDÁRIO AGORA É CHAMADO AQUI FORA!
+  // Ele vai renderizar imediatamente sem depender da API.
+  gerarCalendario();
+
   renderAll();
+
+  setInterval(() => moveSlide(1), 5000);
+  setInterval(updateClock, 1000);
 };
 
 /* ================= LOGIN ================= */
@@ -82,20 +48,19 @@ async function efetuarLogin() {
   try {
     const res = await fetch(`${API_URL}/login`, {
       method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({ email, password: pass })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password: pass }),
     });
 
     const result = await res.json();
 
     if (result.success) {
-      localStorage.setItem("admin_logado","true");
+      localStorage.setItem("admin_logado", "true");
       verificarLogin();
       alert("Login OK");
     } else {
       alert("Erro login");
     }
-
   } catch {
     alert("Erro servidor");
   }
@@ -119,7 +84,7 @@ async function uploadCloudinary() {
   form.append("category", cat);
   form.append("year", year);
 
-  await fetch(`${API_URL}/items`, { method:"POST", body:form });
+  await fetch(`${API_URL}/items`, { method: "POST", body: form });
 
   renderAll();
 }
@@ -129,74 +94,155 @@ async function renderAll() {
   try {
     const res = await fetch(`${API_URL}/items`);
     const data = await res.json();
-    
+
+    // Salva os itens globalmente para os filtros funcionarem
     allItems = data;
 
+    /* GALERIA */
     renderGaleria();
 
+    /* CARROSSEL */
     const track = document.getElementById("track-home");
     if (track) {
       const slides = data
-        .filter(i => i.category === "SLIDE" || i.category === "SLIDE (HOME)")
+        .filter((i) => i.category === "SLIDE" || i.category === "SLIDE (HOME)")
         .slice(-7);
 
       track.innerHTML = slides.length
-        ? slides.map(s => `<img src="${s.imageUrl}">`).join("")
+        ? slides.map((s) => `<img src="${s.imageUrl}">`).join("")
         : `<img src="IMG/escola.jpg">`;
     }
 
-    const logo = data.slice().reverse().find(i => i.category==="LOGO");
+    /* LOGO */
+    const logo = data
+      .slice()
+      .reverse()
+      .find((i) => i.category === "LOGO");
     const logoEl = document.getElementById("main-logo-img");
     if (logo && logoEl) logoEl.src = logo.imageUrl;
 
-    const sobre = data.slice().reverse().find(i => i.category==="SOBRE");
+    /* FOTO SOBRE */
+    const sobre = data
+      .slice()
+      .reverse()
+      .find((i) => i.category === "SOBRE" || i.category === "FOTO ESCOLA");
     const sobreEl = document.getElementById("img-sobre-display");
     if (sobre && sobreEl) sobreEl.src = sobre.imageUrl;
 
+    /* ADMIN GRID */
     const admin = document.getElementById("lista-admin");
     if (admin) {
-      admin.innerHTML = data.map(i => `
+      admin.innerHTML = data
+        .map(
+          (i) => `
         <div class="admin-item">
           <input type="checkbox" onchange="toggleSelect('${i._id || i.id}')">
           <img src="${i.imageUrl}">
         </div>
-      `).join("");
+      `,
+        )
+        .join("");
     }
   } catch (error) {
     console.error("Erro ao renderizar itens:", error);
   }
 }
 
-/* ================= GALERIA ================= */
+function gerarCalendario() {
+  const c = document.getElementById("calendar-list");
+  if (!c) return;
+
+  // Tenta usar a sua lista EVENTOS_ESCOLARES original se ela existir
+  if (
+    typeof EVENTOS_ESCOLARES !== "undefined" &&
+    EVENTOS_ESCOLARES.length > 0
+  ) {
+    c.innerHTML = EVENTOS_ESCOLARES.map((ev) => {
+      const d = new Date(ev.data + "T00:00:00");
+      return `
+        <div class="event-row">
+          <div class="event-date">${d.getDate()}<br><small>${d.toLocaleDateString("pt-BR", { month: "short" }).toUpperCase()}</small></div>
+          <div>
+            <h4 style="margin:0">${ev.titulo}</h4>
+            <small style="color:var(--accent)">${ev.cat}</small>
+          </div>
+        </div>`;
+    }).join("");
+    return;
+  }
+
+  // Fallback: A lista fixa que você enviou
+  const evs = [
+    { d: "10", m: "FEV", t: "Início das Aulas", i: "fa-school" },
+    { d: "07", m: "SET", t: "Desfile Cívico", i: "fa-flag" },
+    { d: "10", m: "DEZ", t: "Final das aulas", i: "fa-battery-full" },
+    { d: "15", m: "DEZ", t: "Formatura", i: "fa-graduation-cap" },
+  ];
+
+  c.innerHTML = evs
+    .map(
+      (e) => `
+    <p><hr/></p><div class="custom-card" style="text-align: center; margin-bottom: 15px;">
+      
+      <div class="card-icon-box"><i class="fas ${e.i}"></i></div>
+      <h1 style="color: var(--primary); margin:0;">${e.d} ${e.m}</h1>
+      <p>${e.t}</p>
+    </div>
+  `,
+    )
+    .join("");
+}
+
+/* ================= FILTROS E RENDERIZAÇÃO DA GALERIA ================= */
 function renderGaleria() {
   const grid = document.getElementById("main-grid");
   if (!grid) return;
 
-  let filtrados = allItems.filter(i =>
-    ["ATIVIDADES","DESFILE","EVENTOS","INFRAESTRUTURA","HOMENAGEM"].includes((i.category || "").toUpperCase())
+  // 1. Filtra primeiro apenas as categorias que pertencem à galeria
+  let filtrados = allItems.filter((i) =>
+    [
+      "ATIVIDADES",
+      "DESFILE",
+      "EVENTOS",
+      "INFRAESTRUTURA",
+      "HOMENAGEM",
+    ].includes((i.category || "").toUpperCase()),
   );
 
-  if (currentCat !== 'TODAS') {
-    filtrados = filtrados.filter(i => (i.category || "").toUpperCase() === currentCat);
+  // 2. Filtra pela categoria selecionada no menu
+  if (currentCat !== "TODAS") {
+    filtrados = filtrados.filter(
+      (i) => (i.category || "").toUpperCase() === currentCat,
+    );
   }
 
-  if (currentYear !== 'TODOS') {
-    filtrados = filtrados.filter(i => String(i.year) === String(currentYear));
+  // 3. Filtra pelo ano selecionado no dropdown
+  if (currentYear !== "TODOS") {
+    filtrados = filtrados.filter((i) => String(i.year) === String(currentYear));
   }
 
-  grid.innerHTML = filtrados.reverse().map(i => `
+  // Renderiza no HTML
+  grid.innerHTML = filtrados
+    .reverse()
+    .map(
+      (i) => `
     <div class="gallery-item">
       <img src="${i.imageUrl}">
     </div>
-  `).join("");
+  `,
+    )
+    .join("");
 }
 
 function filtrarCat(cat, btn) {
   currentCat = cat.toUpperCase();
 
+  // Muda a cor do botão ativo
   if (btn) {
-    document.querySelectorAll('.filter-pills .pill').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
+    document
+      .querySelectorAll(".filter-pills .pill")
+      .forEach((p) => p.classList.remove("active"));
+    btn.classList.add("active");
   }
 
   renderGaleria();
@@ -208,7 +254,7 @@ function filtrarAno(ano) {
 }
 
 /* ================= DELETE ================= */
-function toggleSelect(id){
+function toggleSelect(id) {
   itensSelecionados.has(id)
     ? itensSelecionados.delete(id)
     : itensSelecionados.add(id);
@@ -219,43 +265,43 @@ async function excluirSelecionados() {
 
   try {
     await Promise.all(
-      [...itensSelecionados].map(id =>
-        fetch(`${API_URL}/items/${id}`, { method: "DELETE" })
-      )
+      [...itensSelecionados].map(async (id) => {
+        const res = await fetch(`${API_URL}/items/${id}`, { method: "DELETE" });
+        if (!res.ok) {
+          console.warn(
+            `Aviso: Item ${id} deu erro 404 (pode já ter sido excluído no backend).`,
+          );
+        }
+      }),
     );
-    
-    alert("Excluído!");
+
+    alert("Exclusão finalizada!");
   } catch (error) {
-    console.error(error);
+    console.error("Erro na exclusão:", error);
   }
 
   itensSelecionados.clear();
-  renderAll();
+  renderAll(); // Atualiza a tela independente de ter dado 404
 }
 
 /* ================= UI ================= */
-function showPage(id){
-  document.querySelectorAll(".page").forEach(p=>{
+function showPage(id) {
+  document.querySelectorAll(".page").forEach((p) => {
     p.classList.remove("active");
-    p.style.display="none";
+    p.style.display = "none";
   });
 
   const el = document.getElementById(id);
   if (el) {
-    el.style.display="block";
+    el.style.display = "block";
     el.classList.add("active");
   }
 
-  document.querySelectorAll(".nav-btn")
-    .forEach(b=>b.classList.remove("active"));
+  document
+    .querySelectorAll(".nav-btn")
+    .forEach((b) => b.classList.remove("active"));
 
-  document.getElementById("btn-"+id)?.classList.add("active");
-
-  // 🔥 AQUI É A CHAVE (SEM QUEBRAR O RESTO)
-  if (id === "calendario") {
-    renderCalendar();
-    iniciarRelogioCalendario();
-  }
+  document.getElementById("btn-" + id)?.classList.add("active");
 }
 
 function setupYears() {
@@ -267,17 +313,25 @@ function setupYears() {
     optsUpload += `<option value='${i}'>${i}</option>`;
   }
 
-  document.getElementById("year-selector").innerHTML = optsGallery;
-  document.getElementById("new-img-year").innerHTML = optsUpload;
+  const yearSelectorGallery = document.getElementById("year-selector");
+  if (yearSelectorGallery) yearSelectorGallery.innerHTML = optsGallery;
+
+  const newImgYear = document.getElementById("new-img-year");
+  if (newImgYear) newImgYear.innerHTML = optsUpload;
 }
 
-function moveSlide(step){
-  const track=document.getElementById("track-home");
-  if(!track) return;
-  const slides=track.querySelectorAll("img");
+function moveSlide(step) {
+  const track = document.getElementById("track-home");
+  if (!track) return;
+  const slides = track.querySelectorAll("img");
 
-  if(!slides||slides.length<=1) return;
+  if (!slides || slides.length <= 1) return;
 
-  currentSlide=(currentSlide+step)%slides.length;
-  track.style.transform=`translateX(-${currentSlide*100}%)`;
+  currentSlide = (currentSlide + step) % slides.length;
+  track.style.transform = `translateX(-${currentSlide * 100}%)`;
+}
+
+function updateClock() {
+  const c = document.getElementById("cal-clock");
+  if (c) c.innerText = new Date().toLocaleTimeString("pt-BR");
 }
