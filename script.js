@@ -147,38 +147,37 @@ async function renderAll() {
     console.error("Erro ao renderizar itens:", error);
   }
 }
+function renderCalendar() {
+  const calList = document.getElementById("calendar-list");
+  if (!calList) return;
 
-function gerarCalendario() {
-  const c = document.getElementById("calendar-list");
-  if (!c) return;
+  calList.innerHTML = EVENTOS_ESCOLARES.map(ev => {
+    const d = new Date(ev.data + "T00:00:00");
 
-  // Tenta usar a sua lista EVENTOS_ESCOLARES original se ela existir
-  if (
-    typeof EVENTOS_ESCOLARES !== "undefined" &&
-    EVENTOS_ESCOLARES.length > 0
-  ) {
-    c.innerHTML = EVENTOS_ESCOLARES.map((ev) => {
-      const d = new Date(ev.data + "T00:00:00");
-      return `
-        <div class="event-row">
-          <div class="event-date">${d.getDate()}<br><small>${d.toLocaleDateString("pt-BR", { month: "short" }).toUpperCase()}</small></div>
-          <div>
-            <h4 style="margin:0">${ev.titulo}</h4>
-            <small style="color:var(--accent)">${ev.cat}</small>
-          </div>
-        </div>`;
-    }).join("");
-    return;
-  }
+    return `
+      <div class="event-row">
+        <div class="event-date">
+          ${d.getDate()}<br>
+          <small>${d.toLocaleDateString("pt-BR", { month: "short" }).toUpperCase()}</small>
+        </div>
+        <div>
+          <h4>${ev.titulo}</h4>
+          <small style="color:var(--accent)">${ev.cat}</small>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
 
-  // Fallback: A lista fixa que você enviou
-  const evs = [
-    { d: "10", m: "FEV", t: "Início das Aulas", i: "fa-school" },
-    { d: "07", m: "SET", t: "Desfile Cívico", i: "fa-flag" },
-    { d: "10", m: "DEZ", t: "Final das aulas", i: "fa-battery-full" },
-    { d: "15", m: "DEZ", t: "Formatura", i: "fa-graduation-cap" },
-  ];
+function iniciarRelogioCalendario() {
+  const clock = document.getElementById("cal-clock");
 
+  if (!clock) return;
+
+  setInterval(() => {
+    clock.innerText = new Date().toLocaleTimeString("pt-BR");
+  }, 1000);
+}
   c.innerHTML = evs
     .map(
       (e) => `
