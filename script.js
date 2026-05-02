@@ -1,3 +1,4 @@
+/* ================= CONFIGURAÇÕES E CONSTANTES ================= */
 const CONFIG = {
   db: "AcervoPadreItamar_v12",
   store: "arquivos",
@@ -5,28 +6,6 @@ const CONFIG = {
 
 const API_URL = "https://agile-cooperation-production.up.railway.app";
 
-let currentSlide = 0;
-let itensSelecionados = new Set();
-
-// NOVAS VARIÁVEIS PARA A GALERIA
-let allItems = [];
-let currentCat = "TODAS";
-let currentYear = "TODOS";
-
-/* ================= INIT ================= */
-window.onload = () => {
-  setupYears();
-  verificarLogin();
-
-  // 1. O CALENDÁRIO AGORA É CHAMADO AQUI FORA!
-  // Ele vai renderizar imediatamente sem depender da API.
-  gerarCalendario();
-
-  renderAll();
-
-  setInterval(() => moveSlide(1), 5000);
-  setInterval(updateClock, 1000);
-};
 const EVENTOS_ESCOLARES = [
   { data: "2026-02-09", titulo: "Início do Ano Letivo", cat: "ACADÊMICO" },
   { data: "2026-03-27", titulo: "Reunião Pedagógica", cat: "PEDAGÓGICO" },
@@ -38,16 +17,41 @@ const EVENTOS_ESCOLARES = [
   { data: "2026-12-30", titulo: "Fechamento Administrativo", cat: "ADMINISTRATIVO" }
 ];
 
+/* ================= VARIÁVEIS GLOBAIS ================= */
+let currentSlide = 0;
+let itensSelecionados = new Set();
+let allItems = [];
+let currentCat = "TODAS";
+let currentYear = "TODOS";
+let intervalRelogio = null;
+
+/* ================= INIT ================= */
+window.onload = () => {
+  setupYears();
+  verificarLogin();
+  
+  // Renderiza o calendário imediatamente (sem depender da API)
+  renderCalendar();
+  
+  // Inicia a busca de dados da galeria/carrosel
+  renderAll();
+
+  // Intervalos globais
+  setInterval(() => moveSlide(1), 5000);
+};
+
 /* ================= LOGIN ================= */
 function verificarLogin() {
   const logado = localStorage.getItem("admin_logado");
+  const loginBox = document.getElementById("login-box");
+  const adminPanel = document.getElementById("admin-panel");
 
   if (logado === "true") {
-    document.getElementById("login-box").style.display = "none";
-    document.getElementById("admin-panel").style.display = "block";
+    if (loginBox) loginBox.style.display = "none";
+    if (adminPanel) adminPanel.style.display = "block";
   } else {
-    document.getElementById("login-box").style.display = "block";
-    document.getElementById("admin-panel").style.display = "none";
+    if (loginBox) loginBox.style.display = "block";
+    if (adminPanel) adminPanel.style.display = "none";
   }
 }
 
@@ -83,32 +87,28 @@ function logout() {
 
 /* ================= UPLOAD ================= */
 async function uploadCloudinary() {
-  const file = document.getElementById("new-img-file").files[0];
-  const cat = document.getElementById("new-img-cat").value;
-  const year = document.getElementById("new-img-year").value;
+  const fileEl = document.getElementById("new-img-file");
+  const catEl = document.getElementById("new-img-cat");
+  const yearEl = document.getElementById("new-img-year");
 
-  if (!file) return alert("Selecione arquivo");
+  if (!fileEl.files[0]) return alert("Selecione arquivo");
 
   const form = new FormData();
-  form.append("image", file);
-  form.append("category", cat);
-  form.append("year", year);
+  form.append("image", fileEl.files[0]);
+  form.append("category", catEl.value);
+  form.append("year", yearEl.value);
 
   await fetch(`${API_URL}/items`, { method: "POST", body: form });
-
   renderAll();
 }
 
-/* ================= RENDER ================= */
+/* ================= RENDERIZAÇÃO GERAL ================= */
 async function renderAll() {
   try {
     const res = await fetch(`${API_URL}/items`);
     const data = await res.json();
-
-    // Salva os itens globalmente para os filtros funcionarem
     allItems = data;
 
-    /* GALERIA */
     renderGaleria();
 
     /* CARROSSEL */
@@ -124,18 +124,12 @@ async function renderAll() {
     }
 
     /* LOGO */
-    const logo = data
-      .slice()
-      .reverse()
-      .find((i) => i.category === "LOGO");
+    const logo = data.slice().reverse().find((i) => i.category === "LOGO");
     const logoEl = document.getElementById("main-logo-img");
     if (logo && logoEl) logoEl.src = logo.imageUrl;
 
     /* FOTO SOBRE */
-    const sobre = data
-      .slice()
-      .reverse()
-      .find((i) => i.category === "SOBRE" || i.category === "FOTO ESCOLA");
+    const sobre = data.slice().reverse().find((i) => i.category === "SOBRE" || i.category === "FOTO ESCOLA");
     const sobreEl = document.getElementById("img-sobre-display");
     if (sobre && sobreEl) sobreEl.src = sobre.imageUrl;
 
@@ -143,34 +137,34 @@ async function renderAll() {
     const admin = document.getElementById("lista-admin");
     if (admin) {
       admin.innerHTML = data
-        .map(
-          (i) => `
-        <div class="admin-item">
-          <input type="checkbox" onchange="toggleSelect('${i._id || i.id}')">
-          <img src="${i.imageUrl}">
-        </div>
-      `,
-        )
-        .join("");
+        .map((i) => `
+          <div class="admin-item">
+            <input type="checkbox" onchange="toggleSelect('${i._id || i.id}')">
+            <img src="${i.imageUrl}">
+          </div>
+        `).join("");
     }
   } catch (error) {
     console.error("Erro ao renderizar itens:", error);
   }
 }
+
+/* ================= CALENDÁRIO E RELÓGIO ================= */
 function renderCalendar() {
   const calList = document.getElementById("calendar-list");
   if (!calList) return;
 
   calList.innerHTML = EVENTOS_ESCOLARES.map(ev => {
     const d = new Date(ev.data + "T00:00:00");
+    const mesStr = d.toLocaleDateString("pt-BR", { month: "short" }).replace('.', '').toUpperCase();
 
     return `
       <div class="event-row">
         <div class="event-date">
           ${d.getDate()}<br>
-          <small>${d.toLocaleDateString("pt-BR", { month: "short" }).toUpperCase()}</small>
+          <small>${mesStr}</small>
         </div>
-        <div>
+        <div class="event-info">
           <h4>${ev.titulo}</h4>
           <small style="color:var(--accent)">${ev.cat}</small>
         </div>
@@ -181,79 +175,45 @@ function renderCalendar() {
 
 function iniciarRelogioCalendario() {
   const clock = document.getElementById("cal-clock");
-
   if (!clock) return;
 
-  setInterval(() => {
+  const atualizar = () => {
     clock.innerText = new Date().toLocaleTimeString("pt-BR");
-  }, 1000);
-}
-  c.innerHTML = evs
-    .map(
-      (e) => `
-    <p><hr/></p><div class="custom-card" style="text-align: center; margin-bottom: 15px;">
-      
-      <div class="card-icon-box"><i class="fas ${e.i}"></i></div>
-      <h1 style="color: var(--primary); margin:0;">${e.d} ${e.m}</h1>
-      <p>${e.t}</p>
-    </div>
-  `,
-    )
-    .join("");
+  };
+
+  atualizar();
+  intervalRelogio = setInterval(atualizar, 1000);
 }
 
-/* ================= FILTROS E RENDERIZAÇÃO DA GALERIA ================= */
+/* ================= FILTROS GALERIA ================= */
 function renderGaleria() {
   const grid = document.getElementById("main-grid");
   if (!grid) return;
 
-  // 1. Filtra primeiro apenas as categorias que pertencem à galeria
   let filtrados = allItems.filter((i) =>
-    [
-      "ATIVIDADES",
-      "DESFILE",
-      "EVENTOS",
-      "INFRAESTRUTURA",
-      "HOMENAGEM",
-    ].includes((i.category || "").toUpperCase()),
+    ["ATIVIDADES", "DESFILE", "EVENTOS", "INFRAESTRUTURA", "HOMENAGEM"].includes((i.category || "").toUpperCase())
   );
 
-  // 2. Filtra pela categoria selecionada no menu
   if (currentCat !== "TODAS") {
-    filtrados = filtrados.filter(
-      (i) => (i.category || "").toUpperCase() === currentCat,
-    );
+    filtrados = filtrados.filter((i) => (i.category || "").toUpperCase() === currentCat);
   }
 
-  // 3. Filtra pelo ano selecionado no dropdown
   if (currentYear !== "TODOS") {
     filtrados = filtrados.filter((i) => String(i.year) === String(currentYear));
   }
 
-  // Renderiza no HTML
   grid.innerHTML = filtrados
     .reverse()
-    .map(
-      (i) => `
-    <div class="gallery-item">
-      <img src="${i.imageUrl}">
-    </div>
-  `,
-    )
+    .map((i) => `<div class="gallery-item"><img src="${i.imageUrl}"></div>`)
     .join("");
 }
 
 function filtrarCat(cat, btn) {
   currentCat = cat.toUpperCase();
-
-  // Muda a cor do botão ativo
   if (btn) {
-    document
-      .querySelectorAll(".filter-pills .pill")
-      .forEach((p) => p.classList.remove("active"));
+    document.querySelectorAll(".filter-pills .pill").forEach((p) => p.classList.remove("active"));
     btn.classList.add("active");
   }
-
   renderGaleria();
 }
 
@@ -264,9 +224,7 @@ function filtrarAno(ano) {
 
 /* ================= DELETE ================= */
 function toggleSelect(id) {
-  itensSelecionados.has(id)
-    ? itensSelecionados.delete(id)
-    : itensSelecionados.add(id);
+  itensSelecionados.has(id) ? itensSelecionados.delete(id) : itensSelecionados.add(id);
 }
 
 async function excluirSelecionados() {
@@ -275,26 +233,20 @@ async function excluirSelecionados() {
   try {
     await Promise.all(
       [...itensSelecionados].map(async (id) => {
-        const res = await fetch(`${API_URL}/items/${id}`, { method: "DELETE" });
-        if (!res.ok) {
-          console.warn(
-            `Aviso: Item ${id} deu erro 404 (pode já ter sido excluído no backend).`,
-          );
-        }
-      }),
+        await fetch(`${API_URL}/items/${id}`, { method: "DELETE" });
+      })
     );
-
     alert("Exclusão finalizada!");
+    itensSelecionados.clear();
+    renderAll();
   } catch (error) {
     console.error("Erro na exclusão:", error);
   }
-
-  itensSelecionados.clear();
-  renderAll(); // Atualiza a tela independente de ter dado 404
 }
 
-/* ================= UI ================= */
+/* ================= NAVEGAÇÃO E UI ================= */
 function showPage(id) {
+  // Troca de páginas
   document.querySelectorAll(".page").forEach((p) => {
     p.classList.remove("active");
     p.style.display = "none";
@@ -304,13 +256,24 @@ function showPage(id) {
   if (el) {
     el.style.display = "block";
     el.classList.add("active");
+
+    // Lógica específica do Calendário
+    if (id === "calendario") {
+      renderCalendar();
+      if (!intervalRelogio) iniciarRelogioCalendario();
+    } else {
+      // Limpa relógio ao sair para poupar recursos
+      if (intervalRelogio) {
+        clearInterval(intervalRelogio);
+        intervalRelogio = null;
+      }
+    }
   }
 
-  document
-    .querySelectorAll(".nav-btn")
-    .forEach((b) => b.classList.remove("active"));
-
-  document.getElementById("btn-" + id)?.classList.add("active");
+  // Atualiza botões da Nav
+  document.querySelectorAll(".nav-btn").forEach((b) => b.classList.remove("active"));
+  const btnAtivo = document.getElementById("btn-" + id);
+  if (btnAtivo) btnAtivo.classList.add("active");
 }
 
 function setupYears() {
@@ -333,14 +296,8 @@ function moveSlide(step) {
   const track = document.getElementById("track-home");
   if (!track) return;
   const slides = track.querySelectorAll("img");
-
-  if (!slides || slides.length <= 1) return;
+  if (slides.length <= 1) return;
 
   currentSlide = (currentSlide + step) % slides.length;
   track.style.transform = `translateX(-${currentSlide * 100}%)`;
-}
-
-function updateClock() {
-  const c = document.getElementById("cal-clock");
-  if (c) c.innerText = new Date().toLocaleTimeString("pt-BR");
 }
