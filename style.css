@@ -260,25 +260,29 @@ h1, h2 {
 
 /* Calendário */
 .event-row {
-    display: flex;
-    align-items: center;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 12px;
-    margin-bottom: 10px;
-    border-left: 4px solid var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
 }
 
 .event-date {
-    background: var(--accent);
-    color: white;
-    padding: 10px;
-    border-radius: 8px;
-    min-width: 65px;
-    text-align: center;
-    font-weight: bold;
-    margin-right: 15px;
-    line-height: 1.2;
+  background: #2c3e50;
+  color: white;
+  padding: 10px;
+  text-align: center;
+  min-width: 60px;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+.event-date small {
+  font-size: 10px;
+}
+
+#cal-clock {
+  font-weight: bold;
 }
 
 /* Página Sobre */
