@@ -20,14 +20,51 @@ window.onload = () => {
   
   // 1. O CALENDÁRIO AGORA É CHAMADO AQUI FORA! 
   // Ele vai renderizar imediatamente sem depender da API.
-  gerarCalendario(); 
-  
-  renderAll();
+const EVENTOS_ESCOLARES = [
+  { data: "2026-02-09", titulo: "Início do Ano Letivo", cat: "ACADÊMICO" },
+  { data: "2026-03-27", titulo: "Reunião Pedagógica", cat: "PEDAGÓGICO" },
+  { data: "2026-05-10", titulo: "Homenagem Dia das Mães", cat: "SOCIAL" },
+  { data: "2026-06-20", titulo: "Festa Junina", cat: "EVENTO" },
+  { data: "2026-09-07", titulo: "Desfile de Independência", cat: "CÍVICO" },
+  { data: "2026-11-20", titulo: "Mostra Cultural 50 Anos", cat: "CULTURAL" },
+  { data: "2026-12-16", titulo: "Encerramento e Formatura", cat: "SOLENIDADE" },
+];
+  function updateClock() {
+  const clock = document.getElementById("cal-clock");
+  if (clock) {
+    clock.innerText = new Date().toLocaleTimeString("pt-BR");
+  }
+}
+ function renderCalendar() {
+  const calList = document.getElementById("calendar-list");
 
-  setInterval(() => moveSlide(1), 5000);
+  if (!calList) return;
+
+  calList.innerHTML = EVENTOS_ESCOLARES.map((ev) => {
+    const d = new Date(ev.data + "T00:00:00");
+
+    return `
+      <div class="event-row">
+        <div class="event-date">
+          ${d.getDate()}<br>
+          <small>${d
+            .toLocaleDateString("pt-BR", { month: "short" })
+            .toUpperCase()}</small>
+        </div>
+
+        <div>
+          <h4>${ev.titulo}</h4>
+          <small>${ev.cat}</small>
+        </div>
+      </div>
+    `;
+  }).join("");
+} 
+  function initCalendar() {
+  renderCalendar();
   setInterval(updateClock, 1000);
-};
-
+}
+document.addEventListener("DOMContentLoaded", initCalendar);
 /* ================= LOGIN ================= */
 function verificarLogin() {
   const logado = localStorage.getItem("admin_logado");
