@@ -1,4 +1,5 @@
 const API_URL = "https://agile-cooperation-production.up.railway.app";
+const ADMIN_TOKEN_KEY = "admin_token";
 
 let currentSlide = 0;
 let itensSelecionados = new Set();
@@ -35,16 +36,31 @@ window.onload = () => {
 };
 
 /* ================= LOGIN ================= */
-function verificarLogin() {
-  const logado = localStorage.getItem("admin_logado");
+function clearAdminSession() {
+  localStorage.removeItem(ADMIN_TOKEN_KEY);
+  localStorage.removeItem("admin_logado");
+}
 
-  if (logado === "true") {
+function verificarLogin() {
+  const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+
+  if (token) {
     document.getElementById("login-box").style.display = "none";
     document.getElementById("admin-panel").style.display = "block";
   } else {
     document.getElementById("login-box").style.display = "block";
     document.getElementById("admin-panel").style.display = "none";
   }
+}
+
+function resolveUnauthorized(res) {
+  if (res.status === 401) {
+    clearAdminSession();
+    verificarLogin();
+    alert("Sessão expirada. Faça login novamente.");
+    return true;
+  }
+  return false;
 }
 
 async function efetuarLogin() {
@@ -60,10 +76,12 @@ async function efetuarLogin() {
 
     const result = await res.json();
 
-    if (result.success) {
-      localStorage.setItem("admin_logado", "true");
+    if (result.success && result.token) {
+      localStorage.setItem(ADMIN_TOKEN_KEY, result.token);
       verificarLogin();
       alert("Login OK");
+    } else if (result.success) {
+      alert("Servidor não retornou token. Atualize o backend.");
     } else {
       alert("Erro login");
     }
@@ -73,7 +91,7 @@ async function efetuarLogin() {
 }
 
 function logout() {
-  localStorage.removeItem("admin_logado");
+  clearAdminSession();
   verificarLogin();
 }
 
@@ -90,7 +108,20 @@ async function uploadCloudinary() {
   form.append("category", cat);
   form.append("year", year);
 
-  await fetch(`${API_URL}/items`, { method: "POST", body: form });
+  const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+  if (!token) return alert("Faça login para enviar arquivos.");
+
+  const res = await fetch(`${API_URL}/items`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: form,
+  });
+
+  if (resolveUnauthorized(res)) return;
+  if (!res.ok) {
+    alert("Erro no upload");
+    return;
+  }
 
   renderAll();
 }
@@ -246,17 +277,28 @@ function toggleSelect(id) {
 async function excluirSelecionados() {
   if (!itensSelecionados.size) return alert("Selecione um item para excluir.");
 
+  const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+  if (!token) return alert("Faça login para excluir itens.");
+
   try {
-    await Promise.all(
-      [...itensSelecionados].map(async (id) => {
-        const res = await fetch(`${API_URL}/items/${id}`, { method: "DELETE" });
-        if (!res.ok) {
-          console.warn(
-            `Aviso: Item ${id} deu erro 404 (pode já ter sido excluído no backend).`,
-          );
-        }
-      }),
-    );
+    for (const id of [...itensSelecionados]) {
+      const res = await fetch(`${API_URL}/items/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (resolveUnauthorized(res)) {
+        itensSelecionados.clear();
+        renderAll();
+        return;
+      }
+      if (!res.ok && res.status !== 404) {
+        console.warn(`Aviso: Item ${id} respondeu com status ${res.status}.`);
+      } else if (res.status === 404) {
+        console.warn(
+          `Aviso: Item ${id} não encontrado (pode já ter sido excluído).`,
+        );
+      }
+    }
 
     alert("Exclusão finalizada!");
   } catch (error) {
@@ -264,7 +306,7 @@ async function excluirSelecionados() {
   }
 
   itensSelecionados.clear();
-  renderAll(); // Atualiza a tela independente de ter dado 404
+  renderAll();
 }
 
 /* ================= UI ================= */

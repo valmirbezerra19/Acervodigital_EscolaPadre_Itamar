@@ -5,6 +5,9 @@ const mongoose = require("mongoose");
 const cloudinary = require("cloudinary").v2;
 const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const jwt = require("jsonwebtoken");
+
+const JWT_SECRET = "acervo-test-jwt-secret-change-me";
 
 const app = express();
 
@@ -14,6 +17,7 @@ app.use(
   cors({
     origin: "https://valmirbezerra19.github.io",
     methods: ["GET", "POST", "DELETE", "PUT", "OPTIONS"],
+    allowedHeaders: ["Authorization", "Content-Type"],
   }),
 );
 
@@ -71,6 +75,21 @@ const ItemSchema = new mongoose.Schema({
 });
 const Item = mongoose.model("Item", ItemSchema);
 
+function requireAuth(req, res, next) {
+  const hdr = req.headers.authorization;
+  const token =
+    hdr && hdr.startsWith("Bearer ") ? hdr.slice(7).trim() : null;
+  if (!token) {
+    return res.status(401).json({ success: false, error: "Unauthorized" });
+  }
+  try {
+    jwt.verify(token, JWT_SECRET);
+    next();
+  } catch {
+    res.status(401).json({ success: false, error: "Unauthorized" });
+  }
+}
+
 // --- ROTAS ---
 
 app.get("/", (req, res) => res.send("Servidor Online!"));
@@ -78,7 +97,10 @@ app.get("/", (req, res) => res.send("Servidor Online!"));
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
   if (email === "admin@escola.com" && password === "123456") {
-    return res.json({ success: true });
+    const token = jwt.sign({ role: "admin" }, JWT_SECRET, {
+      expiresIn: "7d",
+    });
+    return res.json({ success: true, token });
   }
   res.status(401).json({ success: false });
 });
@@ -93,7 +115,7 @@ app.get("/items", async (req, res) => {
 });
 
 // Rota de Upload Reescrita para detalhar o erro no Railway
-app.post("/items", (req, res) => {
+app.post("/items", requireAuth, (req, res) => {
   upload(req, res, async function (err) {
     if (err) {
       console.error(
@@ -131,7 +153,7 @@ app.post("/items", (req, res) => {
 });
 
 // Rota para deletar item
-app.delete("/items/:id", async (req, res) => {
+app.delete("/items/:id", requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const deletedItem = await Item.findByIdAndDelete(id);
