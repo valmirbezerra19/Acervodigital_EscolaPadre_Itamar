@@ -24,13 +24,8 @@ const EVENTOS_ESCOLARES = [
 window.onload = () => {
   setupYears();
   verificarLogin();
-
-  // 1. O CALENDÁRIO AGORA É CHAMADO AQUI FORA!
-  // Ele vai renderizar imediatamente sem depender da API.
   gerarCalendario();
-
   renderAll();
-
   setInterval(() => moveSlide(1), 5000);
   setInterval(updateClock, 1000);
 };
@@ -43,7 +38,6 @@ function clearAdminSession() {
 
 function verificarLogin() {
   const token = localStorage.getItem(ADMIN_TOKEN_KEY);
-
   if (token) {
     document.getElementById("login-box").style.display = "none";
     document.getElementById("admin-panel").style.display = "block";
@@ -66,22 +60,17 @@ function resolveUnauthorized(res) {
 async function efetuarLogin() {
   const email = document.getElementById("adm-email").value;
   const pass = document.getElementById("adm-pass").value;
-
   try {
     const res = await fetch(`${API_URL}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password: pass }),
     });
-
     const result = await res.json();
-
     if (result.success && result.token) {
       localStorage.setItem(ADMIN_TOKEN_KEY, result.token);
       verificarLogin();
       alert("Login OK");
-    } else if (result.success) {
-      alert("Servidor não retornou token. Atualize o backend.");
     } else {
       alert("Erro login");
     }
@@ -95,7 +84,7 @@ function logout() {
   verificarLogin();
 }
 
-/* ================= UPLOAD ================= */
+/* ================= UPLOAD (CORRIGIDO PARA MOSTRAR MENSAGEM) ================= */
 async function uploadCloudinary() {
   const fileInput = document.getElementById("new-img-file");
   const file = fileInput.files[0];
@@ -122,15 +111,16 @@ async function uploadCloudinary() {
     if (resolveUnauthorized(res)) return;
 
     if (res.ok) {
+      // O Alerta deve vir ANTES de qualquer outra ação para garantir que o navegador o processe
       alert("Imagem enviada com sucesso!");
-      fileInput.value = ""; // Limpa o campo após o alerta
+      fileInput.value = ""; 
       renderAll();
     } else {
-      alert("Erro no upload: " + res.statusText);
+      alert("Erro no upload: Verifique o console.");
     }
   } catch (error) {
-    alert("Erro de conexão com o servidor.");
-    console.error(error);
+    console.error("Erro no envio:", error);
+    alert("Erro de conexão com o servidor Railway.");
   }
 }
 
@@ -139,42 +129,25 @@ async function renderAll() {
   try {
     const res = await fetch(`${API_URL}/items`);
     const data = await res.json();
-
-    // Salva os itens globalmente para os filtros funcionarem
     allItems = data;
-
-    /* GALERIA */
     renderGaleria();
 
-    /* CARROSSEL */
     const track = document.getElementById("track-home");
     if (track) {
       const slides = data
         .filter((i) => i.category === "SLIDE" || i.category === "SLIDE (HOME)")
         .slice(-7);
-
       track.innerHTML = slides.length
         ? slides.map((s) => `<img src="${s.imageUrl}">`).join("")
         : `<img src="IMG/escola.jpg">`;
     }
 
-    /* LOGO */
-    const logo = data
-      .slice()
-      .reverse()
-      .find((i) => i.category === "LOGO");
-    const logoEl = document.getElementById("main-logo-img");
-    if (logo && logoEl) logoEl.src = logo.imageUrl;
+    const logo = data.slice().reverse().find((i) => i.category === "LOGO");
+    if (logo && document.getElementById("main-logo-img")) document.getElementById("main-logo-img").src = logo.imageUrl;
 
-    /* FOTO SOBRE */
-    const sobre = data
-      .slice()
-      .reverse()
-      .find((i) => i.category === "SOBRE" || i.category === "FOTO ESCOLA");
-    const sobreEl = document.getElementById("img-sobre-display");
-    if (sobre && sobreEl) sobreEl.src = sobre.imageUrl;
+    const sobre = data.slice().reverse().find((i) => i.category === "SOBRE" || i.category === "FOTO ESCOLA");
+    if (sobre && document.getElementById("img-sobre-display")) document.getElementById("img-sobre-display").src = sobre.imageUrl;
 
-    /* ADMIN GRID */
     const admin = document.getElementById("lista-admin");
     if (admin) {
       admin.innerHTML = data
@@ -196,20 +169,13 @@ async function renderAll() {
 function gerarCalendario() {
   const c = document.getElementById("calendar-list");
   if (!c) return;
-
   c.innerHTML = EVENTOS_ESCOLARES.map((ev) => {
     const d = new Date(ev.data + "T00:00:00");
     const dia = d.getDate();
-    const mes = d
-      .toLocaleDateString("pt-BR", { month: "short" })
-      .toUpperCase()
-      .replace(".", "");
-
+    const mes = d.toLocaleDateString("pt-BR", { month: "short" }).toUpperCase().replace(".", "");
     return `
       <div class="event-row">
-        <div class="event-date">
-          ${dia}<br><small>${mes}</small>
-        </div>
+        <div class="event-date">${dia}<br><small>${mes}</small></div>
         <div>
           <h4 style="margin:0; color: var(--primary);">${ev.titulo}</h4>
           <small style="color:var(--accent); text-transform: uppercase;">${ev.cat}</small>
@@ -218,58 +184,28 @@ function gerarCalendario() {
   }).join("");
 }
 
-/* ================= FILTROS E RENDERIZAÇÃO DA GALERIA ================= */
 function renderGaleria() {
   const grid = document.getElementById("main-grid");
   if (!grid) return;
-
-  // 1. Filtra primeiro apenas as categorias que pertencem à galeria
   let filtrados = allItems.filter((i) =>
-    [
-      "ATIVIDADES",
-      "DESFILE",
-      "EVENTOS",
-      "INFRAESTRUTURA",
-      "HOMENAGEM",
-    ].includes((i.category || "").toUpperCase()),
+    ["ATIVIDADES", "DESFILE", "EVENTOS", "INFRAESTRUTURA", "HOMENAGEM"].includes((i.category || "").toUpperCase()),
   );
+  if (currentCat !== "TODAS") filtrados = filtrados.filter((i) => (i.category || "").toUpperCase() === currentCat);
+  if (currentYear !== "TODOS") filtrados = filtrados.filter((i) => String(i.year) === String(currentYear));
 
-  // 2. Filtra pela categoria selecionada no menu
-  if (currentCat !== "TODAS") {
-    filtrados = filtrados.filter(
-      (i) => (i.category || "").toUpperCase() === currentCat,
-    );
-  }
-
-  // 3. Filtra pelo ano selecionado no dropdown
-  if (currentYear !== "TODOS") {
-    filtrados = filtrados.filter((i) => String(i.year) === String(currentYear));
-  }
-
-  // Renderiza no HTML
-  grid.innerHTML = filtrados
-    .reverse()
-    .map(
-      (i) => `
+  grid.innerHTML = filtrados.reverse().map((i) => `
     <div class="gallery-item">
       <img src="${i.imageUrl}" onclick="abrirImagemTelaCheia('${i.imageUrl}')" style="cursor: pointer;">
     </div>
-  `,
-    )
-    .join("");
+  `).join("");
 }
 
 function filtrarCat(cat, btn) {
   currentCat = cat.toUpperCase();
-
-  // Muda a cor do botão ativo
   if (btn) {
-    document
-      .querySelectorAll(".filter-pills .pill")
-      .forEach((p) => p.classList.remove("active"));
+    document.querySelectorAll(".filter-pills .pill").forEach((p) => p.classList.remove("active"));
     btn.classList.add("active");
   }
-
   renderGaleria();
 }
 
@@ -278,19 +214,14 @@ function filtrarAno(ano) {
   renderGaleria();
 }
 
-/* ================= DELETE ================= */
 function toggleSelect(id) {
-  itensSelecionados.has(id)
-    ? itensSelecionados.delete(id)
-    : itensSelecionados.add(id);
+  itensSelecionados.has(id) ? itensSelecionados.delete(id) : itensSelecionados.add(id);
 }
 
 async function excluirSelecionados() {
   if (!itensSelecionados.size) return alert("Selecione um item para excluir.");
-
   const token = localStorage.getItem(ADMIN_TOKEN_KEY);
   if (!token) return alert("Faça login para excluir itens.");
-
   try {
     for (const id of [...itensSelecionados]) {
       const res = await fetch(`${API_URL}/items/${id}`, {
@@ -302,68 +233,46 @@ async function excluirSelecionados() {
         renderAll();
         return;
       }
-      if (!res.ok && res.status !== 404) {
-        console.warn(`Aviso: Item ${id} respondeu com status ${res.status}.`);
-      } else if (res.status === 404) {
-        console.warn(
-          `Aviso: Item ${id} não encontrado (pode já ter sido excluído).`,
-        );
-      }
     }
-
     alert("Exclusão finalizada!");
   } catch (error) {
     console.error("Erro na exclusão:", error);
   }
-
   itensSelecionados.clear();
   renderAll();
 }
 
-/* ================= UI ================= */
 function showPage(id) {
   document.querySelectorAll(".page").forEach((p) => {
     p.classList.remove("active");
     p.style.display = "none";
   });
-
   const el = document.getElementById(id);
   if (el) {
     el.style.display = "block";
     el.classList.add("active");
   }
-
-  document
-    .querySelectorAll(".nav-btn")
-    .forEach((b) => b.classList.remove("active"));
-
+  document.querySelectorAll(".nav-btn").forEach((b) => b.classList.remove("active"));
   document.getElementById("btn-" + id)?.classList.add("active");
 }
 
 function setupYears() {
   let optsGallery = "<option value='TODOS'>Todos os Anos</option>";
   let optsUpload = "";
-
   for (let i = 2026; i >= 1970; i--) {
     optsGallery += `<option value='${i}'>${i}</option>`;
     optsUpload += `<option value='${i}'>${i}</option>`;
   }
-
-  const yearSelectorGallery = document.getElementById("year-selector");
-  if (yearSelectorGallery) yearSelectorGallery.innerHTML = optsGallery;
-
-  const newImgYear = document.getElementById("new-img-year");
-  if (newImgYear) newImgYear.innerHTML = optsUpload;
+  if (document.getElementById("year-selector")) document.getElementById("year-selector").innerHTML = optsGallery;
+  if (document.getElementById("new-img-year")) document.getElementById("new-img-year").innerHTML = optsUpload;
 }
 
 function moveSlide(step) {
   const track = document.getElementById("track-home");
   if (!track) return;
   const slides = track.querySelectorAll("img");
-
   if (!slides || slides.length <= 1) return;
-
-  currentSlide = (currentSlide + step) % slides.length;
+  currentSlide = (currentSlide + step + slides.length) % slides.length;
   track.style.transform = `translateX(-${currentSlide * 100}%)`;
 }
 
@@ -375,25 +284,17 @@ function updateClock() {
 function abrirImagemTelaCheia(url) {
   const modal = document.getElementById("modal-imagem");
   const modalImg = document.getElementById("modal-img-content");
-
   modal.classList.add("active");
   modalImg.src = url;
-
-  // Previne o scroll do body quando o modal está aberto
   document.body.style.overflow = "hidden";
 }
 
 function fecharModal() {
   const modal = document.getElementById("modal-imagem");
-  modal.classList.remove("active");
-
-  // Restaura o scroll do body
+  if (modal) modal.classList.remove("active");
   document.body.style.overflow = "auto";
 }
 
-// Fecha o modal com a tecla ESC
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") {
-    fecharModal();
-  }
+  if (e.key === "Escape") fecharModal();
 });
