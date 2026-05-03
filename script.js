@@ -297,56 +297,61 @@ async function uploadCloudinary() {
 async function renderAll() {
   try {
     const res = await fetch(`${API_URL}/items`);
-
     // ✅ NOVO: valida resposta da API
     if (!res.ok) throw new Error("Erro na API");
 
     const data = await res.json();
-
-    // ✅ NOVO: valida formato
     if (!Array.isArray(data)) throw new Error("Resposta inválida");
 
     allItems = data;
     renderGaleria();
-
+//1. Configuração do Slide Home
     const track = document.getElementById("track-home");
     if (track) {
       const slides = data
         .filter((i) => i.category === "SLIDE" || i.category === "SLIDE (HOME)")
         .slice(-7);
-
       track.innerHTML = slides.length
-        ? slides.map((s) => `<img src="${s.imageUrl}">`).join("")
+        .map((s) => `<img src="${s.imageUrl}">`).join("")
         : `<img src="IMG/escola.jpg">`;
     }
-
-    const logo = data
-      .slice()
-      .reverse()
-      .find((i) => i.category === "LOGO");
+// 2. Configuração do Logo
+    const logo = data .slice() .reverse() .find((i) => i.category === "LOGO");
     if (logo && document.getElementById("main-logo-img"))
       document.getElementById("main-logo-img").src = logo.imageUrl;
-
-    const sobre = data
-      .slice()
-      .reverse()
-      .find((i) => i.category === "SOBRE" || i.category === "FOTO ESCOLA");
+    
+//3; Configuração da Foto Sobre 
+    const sobre = data .slice() .reverse() .find((i) => i.category === "SOBRE" || i.category === "FOTO ESCOLA");
     if (sobre && document.getElementById("img-sobre-display"))
       document.getElementById("img-sobre-display").src = sobre.imageUrl;
-
-    const admin = document.getElementById("lista-admin");
-    if (admin) {
-      admin.innerHTML = data
-        .map(
-          (i) => `
-        <div class="admin-item">
-          <input type="checkbox" onchange="toggleSelect('${i._id || i.id}')">
-          <img src="${i.imageUrl}">
-        </div>
-      `,
-        )
-        .join("");
-    }
+    
+//4.  Substitua o bloco acima por este:
+const admin = document.getElementById("lista-admin");
+if (admin) {
+  admin.innerHTML = data
+    .slice()
+    .reverse() // Garante que a foto que você acabou de subir apareça primeiro
+    .map(
+      (i) => `
+    <div class="admin-item" style="display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 5px; background: #fff; border-radius: 8px;">
+      <div style="position: relative; width: 100%;">
+        <input type="checkbox" onchange="toggleSelect('${i._id || i.id}')">
+        <img src="${i.imageUrl}" style="width: 100%; height: 80px; object-fit: cover; border-radius: 4px;">
+      </div>
+      <div style="text-align: center;">
+        <span style="font-size: 11px; font-weight: bold; color: #3498db; border: 1px solid #3498db; padding: 1px 5px; border-radius: 4px;">
+          ${i.year || '2026'}
+        </span>
+        <p style="font-size: 9px; color: #666; text-transform: uppercase; margin-top: 3px;">
+          ${i.category || 'Geral'}
+        </p>
+      </div>
+    </div>
+  `
+    )
+    .join("");
+}
+   
   } catch (error) {
     console.error("Erro ao renderizar itens:", error);
   }
