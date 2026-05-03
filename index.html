@@ -319,20 +319,12 @@
       </div>
     </footer>
 
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script>
-      const firebaseConfig = {
-        apiKey: "AIzaSyBGLaM3V6e80oOluuvr2J2_kCg4AWXxrAs",
-        authDomain: "acervo-digital-itamar.firebaseapp.com",
-        projectId: "acervo-digital-itamar",
-        storageBucket: "acervo-digital-itamar.firebasestorage.app",
-        messagingSenderId: "1095003121133",
-        appId: "1:1095003121133:web:6d9a4aef6ee4afca6573e4",
-        measurementId: "G-H9FLJMGQTF",
-      };
-      firebase.initializeApp(firebaseConfig);
-    </script>
+    <!-- Modal para imagens em tela cheia -->
+    <div id="modal-imagem" class="modal-overlay" onclick="fecharModal()">
+      <span class="modal-close" onclick="fecharModal()">&times;</span>
+      <img id="modal-img-content" class="modal-content" onclick="event.stopPropagation()">
+    </div>
+
     <script src="script.js"></script>
   </body>
 </html>

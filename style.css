@@ -439,6 +439,61 @@ h1, h2 {
     font-weight: bold;
 }
 
+/* Modal de Imagem em Tela Cheia */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.95);
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-overlay.active {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    animation: zoomIn 0.3s ease;
+    border-radius: 10px;
+}
+
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 40px;
+    color: white;
+    font-size: 50px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    z-index: 10000;
+}
+
+.modal-close:hover {
+    color: var(--accent);
+    transform: scale(1.1);
+}
+
+@keyframes zoomIn {
+    from {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
 /* --- MEDIA QUERIES (Responsividade) --- */
 @media (max-width: 768px) {
     .nav-wrapper {
@@ -470,5 +525,16 @@ h1, h2 {
     .gallery-filter-bar {
         flex-direction: column;
         align-items: stretch;
+    }
+
+    .modal-content {
+        max-width: 95%;
+        max-height: 80%;
+    }
+
+    .modal-close {
+        top: 10px;
+        right: 20px;
+        font-size: 40px;
     }
 }

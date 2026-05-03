@@ -1,8 +1,3 @@
-const CONFIG = {
-  db: "AcervoPadreItamar_v12",
-  store: "arquivos",
-};
-
 const API_URL = "https://agile-cooperation-production.up.railway.app";
 
 let currentSlide = 0;
@@ -215,7 +210,7 @@ function renderGaleria() {
     .map(
       (i) => `
     <div class="gallery-item">
-      <img src="${i.imageUrl}">
+      <img src="${i.imageUrl}" onclick="abrirImagemTelaCheia('${i.imageUrl}')" style="cursor: pointer;">
     </div>
   `,
     )
@@ -323,3 +318,29 @@ function updateClock() {
   const c = document.getElementById("cal-clock");
   if (c) c.innerText = new Date().toLocaleTimeString("pt-BR");
 }
+
+function abrirImagemTelaCheia(url) {
+  const modal = document.getElementById("modal-imagem");
+  const modalImg = document.getElementById("modal-img-content");
+  
+  modal.classList.add("active");
+  modalImg.src = url;
+  
+  // Previne o scroll do body quando o modal está aberto
+  document.body.style.overflow = "hidden";
+}
+
+function fecharModal() {
+  const modal = document.getElementById("modal-imagem");
+  modal.classList.remove("active");
+  
+  // Restaura o scroll do body
+  document.body.style.overflow = "auto";
+}
+
+// Fecha o modal com a tecla ESC
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    fecharModal();
+  }
+});
