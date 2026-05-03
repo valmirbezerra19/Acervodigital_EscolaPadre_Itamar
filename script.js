@@ -306,15 +306,18 @@ async function renderAll() {
     allItems = data;
     renderGaleria();
 //1. Configuração do Slide Home
-    const track = document.getElementById("track-home");
-    if (track) {
-      const slides = data
-        .filter((i) => i.category === "SLIDE" || i.category === "SLIDE (HOME)")
-        .slice(-7);
-      track.innerHTML = slides.length
-        .map((s) => `<img src="${s.imageUrl}">`).join("")
-        : `<img src="IMG/escola.jpg">`;
-    }
+   // 1. Configuração do Slide Home (CORRIGIDO)
+const track = document.getElementById("track-home");
+if (track) {
+  const slides = data
+    .filter((i) => i.category === "SLIDE" || i.category === "SLIDE (HOME)")
+    .slice(-7);
+
+  // Adicionamos o "?" antes do .map para a lógica funcionar
+  track.innerHTML = slides.length
+    ? slides.map((s) => `<img src="${s.imageUrl}">`).join("")
+    : `<img src="IMG/escola.jpg">`;
+}
 // 2. Configuração do Logo
     const logo = data .slice() .reverse() .find((i) => i.category === "LOGO");
     if (logo && document.getElementById("main-logo-img"))
