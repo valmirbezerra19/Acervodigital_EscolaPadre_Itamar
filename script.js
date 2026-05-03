@@ -97,7 +97,8 @@ function logout() {
 
 /* ================= UPLOAD ================= */
 async function uploadCloudinary() {
-  const file = document.getElementById("new-img-file").files[0];
+  const fileInput = document.getElementById("new-img-file");
+  const file = fileInput.files[0];
   const cat = document.getElementById("new-img-cat").value;
   const year = document.getElementById("new-img-year").value;
 
@@ -122,6 +123,11 @@ async function uploadCloudinary() {
     alert("Erro no upload");
     return;
   }
+
+  // --- ALTERAÇÃO SOLICITADA ---
+  alert("Imagem enviada com sucesso!");
+  fileInput.value = ""; // Limpa o campo de seleção
+  // ----------------------------
 
   renderAll();
 }
@@ -192,8 +198,11 @@ function gerarCalendario() {
   c.innerHTML = EVENTOS_ESCOLARES.map((ev) => {
     const d = new Date(ev.data + "T00:00:00");
     const dia = d.getDate();
-    const mes = d.toLocaleDateString("pt-BR", { month: "short" }).toUpperCase().replace(".", "");
-    
+    const mes = d
+      .toLocaleDateString("pt-BR", { month: "short" })
+      .toUpperCase()
+      .replace(".", "");
+
     return `
       <div class="event-row">
         <div class="event-date">
@@ -364,10 +373,10 @@ function updateClock() {
 function abrirImagemTelaCheia(url) {
   const modal = document.getElementById("modal-imagem");
   const modalImg = document.getElementById("modal-img-content");
-  
+
   modal.classList.add("active");
   modalImg.src = url;
-  
+
   // Previne o scroll do body quando o modal está aberto
   document.body.style.overflow = "hidden";
 }
@@ -375,7 +384,7 @@ function abrirImagemTelaCheia(url) {
 function fecharModal() {
   const modal = document.getElementById("modal-imagem");
   modal.classList.remove("active");
-  
+
   // Restaura o scroll do body
   document.body.style.overflow = "auto";
 }
