@@ -11,50 +11,50 @@ let currentYear = "TODOS";
 
 // EVENTOS DO CALENDÁRIO ESCOLAR
 const eventos2026 = [
-  { data: "2026-02-02", evento: "Início das atividades dos Auxiliares de Serviços Gerais (A.S.G.)", cat: "administrativo" }, //[cite: 1]
-  { data: "2026-02-11", evento: "Formação Continuada (Alfabetização e Planejamento)", cat: "pedagogico" }, //[cite: 1]
-  { data: "2026-02-19", evento: "Início do Ano Letivo com Estudantes", cat: "letivo" }, //[cite: 1]
-  { data: "2026-04-02", evento: "Aula no período matutino", cat: "letivo" }, //[cite: 1]
-  { data: "2026-04-11", evento: "Dia da Família na Escola (Sábado)", cat: "comunidade" }, //[cite: 1]
-  { data: "2026-04-29", evento: "Reunião de Pais - Educação Infantil (Matutino)", cat: "comunidade" }, //[cite: 1]
-  { data: "2026-04-30", evento: "Pré-Conselho de Classe (Vespertino)", cat: "pedagogico" }, //[cite: 1]
-  { data: "2026-05-01", evento: "Feriado: Dia do Trabalhador", cat: "feriado" }, //[cite: 1]
-  { data: "2026-05-04", evento: "Início do 2º Bimestre e Conselho de Classe Participativo", cat: "pedagogico" }, //[cite: 1]
-  { data: "2026-06-04", evento: "Feriado: Corpus Christi", cat: "feriado" }, //[cite: 1]
-  { data: "2026-06-05", evento: "Programa Escola Mais Verde: Visita à TRACTEBEL", cat: "projeto" }, //[cite: 1]
-  { data: "2026-06-24", evento: "Feriado Municipal", cat: "feriado" }, //[cite: 1]
-  { data: "2026-06-29", evento: "Projeto Semana Municipal de Pedro Raymundo / Festa Junina", cat: "projeto" }, //[cite: 1]
-  { data: "2026-06-30", evento: "Projeto Semana Municipal de Pedro Raymundo / Festa Junina", cat: "projeto" }, //[cite: 1]
-  { data: "2026-07-23", evento: "Reunião de Pais (Ed. Infantil Vespertino) e Pré-Conselho (1º ao 5º Matutino)", cat: "comunidade" }, //[cite: 1]
-  { data: "2026-07-24", evento: "Conselho Participativo", cat: "pedagogico" }, //[cite: 1]
-  { data: "2026-07-27", evento: "Recesso Escolar (Alunos e Professores)", cat: "recesso" }, //[cite: 1]
-  { data: "2026-07-31", evento: "Recesso Escolar (Alunos e Professores)", cat: "recesso" }, //[cite: 1]
-  { data: "2026-08-03", evento: "Início do 3º Bimestre", cat: "letivo" }, //[cite: 1]
-  { data: "2026-08-24", evento: "Abertura da Semana do Município / Início da Semana Cultural", cat: "cultural" }, //[cite: 1]
-  { data: "2026-08-27", evento: "Feriado: Aniversário de Emancipação de Imaruí", cat: "feriado" }, //[cite: 1]
-  { data: "2026-08-28", evento: "Ponto Facultativo", cat: "feriado" }, //[cite: 1]
-  { data: "2026-09-01", evento: "Abertura da Semana da Pátria nas escolas", cat: "cultural" }, //[cite: 1]
-  { data: "2026-09-07", evento: "Desfile Cívico da Independência (Dia Letivo)", cat: "letivo" }, //[cite: 1]
-  { data: "2026-09-08", evento: "Ponto Facultativo", cat: "feriado" }, //[cite: 1]
-  { data: "2026-09-14", evento: "Início do JEIMA (Jogos Escolares de Imaruí)", cat: "esportivo" }, //[cite: 1]
-  { data: "2026-09-18", evento: "Término do JEIMA", cat: "esportivo" }, //[cite: 1]
-  { data: "2026-09-28", evento: "Reunião de Pais (Ed. Infantil Matutino) e Pré-Conselho (1º ao 5º Vespertino)", cat: "comunidade" }, //[cite: 1]
-  { data: "2026-09-29", evento: "Conselho Participativo", cat: "pedagogico" }, //[cite: 1]
-  { data: "2026-10-01", evento: "Início do 4º Bimestre", cat: "letivo" }, //[cite: 1]
-  { data: "2026-10-05", evento: "Projeto: Visita ao Museu das Conchas (Itapirubá)", cat: "projeto" }, //[cite: 1]
-  { data: "2026-10-07", evento: "Projeto: Conhecer o artista Willy Zumblick / Cinema", cat: "projeto" }, //[cite: 1]
-  { data: "2026-10-09", evento: "Atividade especial do Dia da Criança (Noturno)", cat: "cultural" }, //[cite: 1]
-  { data: "2026-10-12", evento: "Feriado: Padroeira do Brasil", cat: "feriado" }, //[cite: 1]
-  { data: "2026-10-28", evento: "Ponto Facultativo (Todos os funcionários)", cat: "feriado" }, //[cite: 1]
-  { data: "2026-11-15", evento: "Feriado: Proclamação da República", cat: "feriado" }, //[cite: 1]
-  { data: "2026-11-19", evento: "Feira de Ciências: Inovação e Descoberta", cat: "projeto" }, //[cite: 1]
-  { data: "2026-12-01", evento: "Abertura do Natal (Centro/Noturno)", cat: "cultural" }, //[cite: 1]
-  { data: "2026-12-09", evento: "Conselho Participativo (Pré e 5º ano) e Formatura (Noturno)", cat: "pedagogico" }, //[cite: 1]
-  { data: "2026-12-10", evento: "Pré-Conselho (Vespertino)", cat: "pedagogico" }, //[cite: 1]
-  { data: "2026-12-11", evento: "Encerramento com as crianças", cat: "letivo" }, //[cite: 1]
-  { data: "2026-12-14", evento: "Conselho de Classe Participativo", cat: "pedagogico" }, //[cite: 1]
-  { data: "2026-12-15", evento: "Encerramento (Funcionários Efetivos)", cat: "administrativo" }, //[cite: 1]
-  { data: "2026-12-18", evento: "Recesso da Equipe Gestora", cat: "recesso" } //[cite: 1]
+  { data: "2026-02-02", evento: "Início das atividades dos Auxiliares de Serviços Gerais (A.S.G.)", cat: "administrativo" },
+  { data: "2026-02-11", evento: "Formação Continuada (Alfabetização e Planejamento)", cat: "pedagogico" },
+  { data: "2026-02-19", evento: "Início do Ano Letivo com Estudantes", cat: "letivo" },
+  { data: "2026-04-02", evento: "Aula no período matutino", cat: "letivo" },
+  { data: "2026-04-11", evento: "Dia da Família na Escola (Sábado)", cat: "comunidade" },
+  { data: "2026-04-29", evento: "Reunião de Pais - Educação Infantil (Matutino)", cat: "comunidade" },
+  { data: "2026-04-30", evento: "Pré-Conselho de Classe (Vespertino)", cat: "pedagogico" },
+  { data: "2026-05-01", evento: "Feriado: Dia do Trabalhador", cat: "feriado" },
+  { data: "2026-05-04", evento: "Início do 2º Bimestre e Conselho de Classe Participativo", cat: "pedagogico" },
+  { data: "2026-06-04", evento: "Feriado: Corpus Christi", cat: "feriado" },
+  { data: "2026-06-05", evento: "Programa Escola Mais Verde: Visita à TRACTEBEL", cat: "projeto" },
+  { data: "2026-06-24", evento: "Feriado Municipal", cat: "feriado" },
+  { data: "2026-06-29", evento: "Projeto Semana Municipal de Pedro Raymundo / Festa Junina", cat: "projeto" },
+  { data: "2026-06-30", evento: "Projeto Semana Municipal de Pedro Raymundo / Festa Junina", cat: "projeto" },
+  { data: "2026-07-23", evento: "Reunião de Pais (Ed. Infantil Vespertino) e Pré-Conselho (1º ao 5º Matutino)", cat: "comunidade" },
+  { data: "2026-07-24", evento: "Conselho Participativo", cat: "pedagogico" },
+  { data: "2026-07-27", evento: "Recesso Escolar (Alunos e Professores)", cat: "recesso" },
+  { data: "2026-07-31", evento: "Recesso Escolar (Alunos e Professores)", cat: "recesso" },
+  { data: "2026-08-03", evento: "Início do 3º Bimestre", cat: "letivo" },
+  { data: "2026-08-24", evento: "Abertura da Semana do Município / Início da Semana Cultural", cat: "cultural" },
+  { data: "2026-08-27", evento: "Feriado: Aniversário de Emancipação de Imaruí", cat: "feriado" },
+  { data: "2026-08-28", evento: "Ponto Facultativo", cat: "feriado" },
+  { data: "2026-09-01", evento: "Abertura da Semana da Pátria nas escolas", cat: "cultural" },
+  { data: "2026-09-07", evento: "Desfile Cívico da Independência (Dia Letivo)", cat: "letivo" },
+  { data: "2026-09-08", evento: "Ponto Facultativo", cat: "feriado" },
+  { data: "2026-09-14", evento: "Início do JEIMA (Jogos Escolares de Imaruí)", cat: "esportivo" },
+  { data: "2026-09-18", evento: "Término do JEIMA", cat: "esportivo" },
+  { data: "2026-09-28", evento: "Reunião de Pais (Ed. Infantil Matutino) e Pré-Conselho (1º ao 5º Vespertino)", cat: "comunidade" },
+  { data: "2026-09-29", evento: "Conselho Participativo", cat: "pedagogico" },
+  { data: "2026-10-01", evento: "Início do 4º Bimestre", cat: "letivo" },
+  { data: "2026-10-05", evento: "Projeto: Visita ao Museu das Conchas (Itapirubá)", cat: "projeto" },
+  { data: "2026-10-07", evento: "Projeto: Conhecer o artista Willy Zumblick / Cinema", cat: "projeto" },
+  { data: "2026-10-09", evento: "Atividade especial do Dia da Criança (Noturno)", cat: "cultural" },
+  { data: "2026-10-12", evento: "Feriado: Padroeira do Brasil", cat: "feriado" },
+  { data: "2026-10-28", evento: "Ponto Facultativo (Todos os funcionários)", cat: "feriado" },
+  { data: "2026-11-15", evento: "Feriado: Proclamação da República", cat: "feriado" },
+  { data: "2026-11-19", evento: "Feira de Ciências: Inovação e Descoberta", cat: "projeto" },
+  { data: "2026-12-01", evento: "Abertura do Natal (Centro/Noturno)", cat: "cultural" },
+  { data: "2026-12-09", evento: "Conselho Participativo (Pré e 5º ano) e Formatura (Noturno)", cat: "pedagogico" },
+  { data: "2026-12-10", evento: "Pré-Conselho (Vespertino)", cat: "pedagogico" },
+  { data: "2026-12-11", evento: "Encerramento com as crianças", cat: "letivo" },
+  { data: "2026-12-14", evento: "Conselho de Classe Participativo", cat: "pedagogico" },
+  { data: "2026-12-15", evento: "Encerramento (Funcionários Efetivos)", cat: "administrativo" },
+  { data: "2026-12-18", evento: "Recesso da Equipe Gestora", cat: "recesso" }
 ];
 
 /* ================= INIT ================= */
