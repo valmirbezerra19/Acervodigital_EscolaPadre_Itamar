@@ -112,24 +112,26 @@ async function uploadCloudinary() {
   const token = localStorage.getItem(ADMIN_TOKEN_KEY);
   if (!token) return alert("Faça login para enviar arquivos.");
 
-  const res = await fetch(`${API_URL}/items`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
-    body: form,
-  });
+  try {
+    const res = await fetch(`${API_URL}/items`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: form,
+    });
 
-  if (resolveUnauthorized(res)) return;
-  if (!res.ok) {
-    alert("Erro no upload");
-    return;
+    if (resolveUnauthorized(res)) return;
+
+    if (res.ok) {
+      alert("Imagem enviada com sucesso!");
+      fileInput.value = ""; // Limpa o campo após o alerta
+      renderAll();
+    } else {
+      alert("Erro no upload: " + res.statusText);
+    }
+  } catch (error) {
+    alert("Erro de conexão com o servidor.");
+    console.error(error);
   }
-
-  // --- ALTERAÇÃO SOLICITADA ---
-  alert("Imagem enviada com sucesso!");
-  fileInput.value = ""; // Limpa o campo de seleção
-  // ----------------------------
-
-  renderAll();
 }
 
 /* ================= RENDER ================= */
