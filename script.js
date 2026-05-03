@@ -13,6 +13,17 @@ let allItems = [];
 let currentCat = "TODAS";
 let currentYear = "TODOS";
 
+// EVENTOS DO CALENDÁRIO ESCOLAR
+const EVENTOS_ESCOLARES = [
+  { data: "2026-02-09", titulo: "Início do Ano Letivo", cat: "ACADÊMICO" },
+  { data: "2026-03-27", titulo: "Reunião Pedagógica", cat: "PEDAGÓGICO" },
+  { data: "2026-05-10", titulo: "Homenagem Dia das Mães", cat: "SOCIAL" },
+  { data: "2026-06-20", titulo: "Festa Junina", cat: "EVENTO" },
+  { data: "2026-09-07", titulo: "Desfile de Independência", cat: "CÍVICO" },
+  { data: "2026-11-20", titulo: "Mostra Cultural 50 Anos", cat: "CULTURAL" },
+  { data: "2026-12-16", titulo: "Encerramento e Formatura", cat: "SOLENIDADE" },
+];
+
 /* ================= INIT ================= */
 window.onload = () => {
   setupYears();
@@ -152,45 +163,22 @@ function gerarCalendario() {
   const c = document.getElementById("calendar-list");
   if (!c) return;
 
-  // Tenta usar a sua lista EVENTOS_ESCOLARES original se ela existir
-  if (
-    typeof EVENTOS_ESCOLARES !== "undefined" &&
-    EVENTOS_ESCOLARES.length > 0
-  ) {
-    c.innerHTML = EVENTOS_ESCOLARES.map((ev) => {
-      const d = new Date(ev.data + "T00:00:00");
-      return `
-        <div class="event-row">
-          <div class="event-date">${d.getDate()}<br><small>${d.toLocaleDateString("pt-BR", { month: "short" }).toUpperCase()}</small></div>
-          <div>
-            <h4 style="margin:0">${ev.titulo}</h4>
-            <small style="color:var(--accent)">${ev.cat}</small>
-          </div>
-        </div>`;
-    }).join("");
-    return;
-  }
-
-  // Fallback: A lista fixa que você enviou
-  const evs = [
-    { d: "10", m: "FEV", t: "Início das Aulas", i: "fa-school" },
-    { d: "07", m: "SET", t: "Desfile Cívico", i: "fa-flag" },
-    { d: "10", m: "DEZ", t: "Final das aulas", i: "fa-battery-full" },
-    { d: "15", m: "DEZ", t: "Formatura", i: "fa-graduation-cap" },
-  ];
-
-  c.innerHTML = evs
-    .map(
-      (e) => `
-    <p><hr/></p><div class="custom-card" style="text-align: center; margin-bottom: 15px;">
-      
-      <div class="card-icon-box"><i class="fas ${e.i}"></i></div>
-      <h1 style="color: var(--primary); margin:0;">${e.d} ${e.m}</h1>
-      <p>${e.t}</p>
-    </div>
-  `,
-    )
-    .join("");
+  c.innerHTML = EVENTOS_ESCOLARES.map((ev) => {
+    const d = new Date(ev.data + "T00:00:00");
+    const dia = d.getDate();
+    const mes = d.toLocaleDateString("pt-BR", { month: "short" }).toUpperCase().replace(".", "");
+    
+    return `
+      <div class="event-row">
+        <div class="event-date">
+          ${dia}<br><small>${mes}</small>
+        </div>
+        <div>
+          <h4 style="margin:0; color: var(--primary);">${ev.titulo}</h4>
+          <small style="color:var(--accent); text-transform: uppercase;">${ev.cat}</small>
+        </div>
+      </div>`;
+  }).join("");
 }
 
 /* ================= FILTROS E RENDERIZAÇÃO DA GALERIA ================= */
