@@ -15,7 +15,6 @@ const EVENTOS_ESCOLARES = [
   { data: "2026-03-27", titulo: "Reunião Pedagógica", cat: "PEDAGÓGICO" },
   { data: "2026-05-10", titulo: "Homenagem Dia das Mães", cat: "SOCIAL" },
   { data: "2026-06-20", titulo: "Festa Junina", cat: "EVENTO" },
-  { data: "2026-06-20", titulo: "Festa Junina", cat: "EVENTO" },
   { data: "2026-09-07", titulo: "Desfile de Independência", cat: "CÍVICO" },
   { data: "2026-11-20", titulo: "Mostra Cultural 50 Anos", cat: "CULTURAL" },
   { data: "2026-12-16", titulo: "Encerramento e Formatura", cat: "SOLENIDADE" },
