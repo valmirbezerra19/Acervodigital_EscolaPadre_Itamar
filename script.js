@@ -384,6 +384,7 @@ function gerarCalendario() {
 function renderGaleria() {
   const grid = document.getElementById("main-grid");
   if (!grid) return;
+
   let filtrados = allItems.filter((i) =>
     [
       "ATIVIDADES",
@@ -391,11 +392,12 @@ function renderGaleria() {
       "EVENTOS",
       "INFRAESTRUTURA",
       "HOMENAGEM",
-    ].includes((i.category || "").toUpperCase()),
+    ].includes((i.category || "").toUpperCase())
   );
+
   if (currentCat !== "TODAS")
     filtrados = filtrados.filter(
-      (i) => (i.category || "").toUpperCase() === currentCat,
+      (i) => (i.category || "").toUpperCase() === currentCat
     );
   if (currentYear !== "TODOS")
     filtrados = filtrados.filter((i) => String(i.year) === String(currentYear));
@@ -404,10 +406,20 @@ function renderGaleria() {
     .reverse()
     .map(
       (i) => `
-    <div class="gallery-item">
-      <img src="${i.imageUrl}" onclick="abrirImagemTelaCheia('${i.imageUrl}')" style="cursor: pointer;">
+    <div class="gallery-card" style="background: #fff; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; flex-direction: column;">
+      <img src="${i.imageUrl}" onclick="abrirImagemTelaCheia('${i.imageUrl}')" 
+           style="width: 100%; height: 200px; object-fit: cover; cursor: pointer;">
+      
+      <div style="padding: 15px; display: flex; flex-direction: column; gap: 8px;">
+        <span style="display: inline-block; width: fit-content; border: 2px solid #3498db; color: #3498db; font-weight: bold; padding: 2px 12px; border-radius: 8px; font-size: 18px;">
+          ${i.year || '2026'}
+        </span>
+        <p style="margin: 0; color: #7f8c8d; font-weight: bold; text-transform: uppercase; font-size: 14px; letter-spacing: 0.5px;">
+          ${i.category || 'Geral'}
+        </p>
+      </div>
     </div>
-  `,
+  `
     )
     .join("");
 }
