@@ -385,6 +385,7 @@ function renderGaleria() {
   const grid = document.getElementById("main-grid");
   if (!grid) return;
 
+  // Filtra apenas categorias que devem aparecer na galeria pública
   let filtrados = allItems.filter((i) =>
     [
       "ATIVIDADES",
@@ -395,6 +396,7 @@ function renderGaleria() {
     ].includes((i.category || "").toUpperCase())
   );
 
+  // Aplica filtros de Categoria e Ano selecionados pelo usuário
   if (currentCat !== "TODAS")
     filtrados = filtrados.filter(
       (i) => (i.category || "").toUpperCase() === currentCat
@@ -406,16 +408,22 @@ function renderGaleria() {
     .reverse()
     .map(
       (i) => `
-    <div class="gallery-card" style="background: #fff; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; flex-direction: column;">
+    <div class="gallery-card" style="background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.08); display: flex; flex-direction: column; transition: transform 0.2s;">
+      <!-- Imagem com altura fixa para manter o padrão -->
       <img src="${i.imageUrl}" onclick="abrirImagemTelaCheia('${i.imageUrl}')" 
-           style="width: 100%; height: 200px; object-fit: cover; cursor: pointer;">
+           style="width: 100%; height: 220px; object-fit: cover; cursor: pointer;">
       
-      <div style="padding: 15px; display: flex; flex-direction: column; gap: 8px;">
-        <span style="display: inline-block; width: fit-content; border: 2px solid #3498db; color: #3498db; font-weight: bold; padding: 2px 12px; border-radius: 8px; font-size: 18px;">
+      <!-- Área de Informações (Ano e Categoria) -->
+      <div style="padding: 20px; display: flex; flex-direction: column; gap: 10px; align-items: flex-start;">
+        
+        <!-- O Ano: Badge com borda azul -->
+        <span style="border: 2px solid #3498db; color: #3498db; font-weight: 800; padding: 4px 15px; border-radius: 10px; font-size: 20px; line-height: 1;">
           ${i.year || '2026'}
         </span>
-        <p style="margin: 0; color: #7f8c8d; font-weight: bold; text-transform: uppercase; font-size: 14px; letter-spacing: 0.5px;">
-          ${i.category || 'Geral'}
+        
+        <!-- A Categoria: Texto cinza em caixa alta -->
+        <p style="margin: 0; color: #95a5a6; font-weight: 700; text-transform: uppercase; font-size: 14px; letter-spacing: 1px;">
+          ${i.category || 'GERAL'}
         </p>
       </div>
     </div>
