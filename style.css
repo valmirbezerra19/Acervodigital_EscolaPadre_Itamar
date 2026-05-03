@@ -538,3 +538,93 @@ h1, h2 {
         font-size: 40px;
     }
 }
+/* ================= OVERLAY (ANO + CATEGORIA) ================= */
+
+.img-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: 15px;
+}
+
+/* GALERIA (mantém seu padrão) */
+.gallery-item .img-wrapper img {
+    height: 200px;
+}
+
+/* ADMIN (mantém pequeno) */
+.admin-item .img-wrapper img {
+    height: 80px;
+}
+
+/* overlay */
+.img-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 6px 10px;
+
+    background: linear-gradient(to top, rgba(0,0,0,0.75), transparent);
+    color: white;
+    font-size: 0.7rem;
+
+    opacity: 1;
+    transition: 0.3s;
+}
+
+/* ano */
+.img-year {
+    background: var(--accent);
+    padding: 3px 8px;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+/* categoria */
+.img-cat {
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* garante checkbox acima */
+.admin-item input {
+    z-index: 2;
+}
+
+/* efeito hover leve */
+.img-wrapper:hover img {
+    transform: scale(1.05);
+}
+/* ================= AJUSTE ADMIN OVERLAY ================= */
+
+.admin-item {
+    position: relative;
+}
+
+/* garante altura correta */
+.admin-item .img-wrapper {
+    height: 80px;
+}
+
+/* imagem ocupa tudo */
+.admin-item .img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* overlay ajustado pro admin */
+.admin-item .img-overlay {
+    font-size: 0.6rem;
+    padding: 3px 6px;
+}
+
+/* garante que checkbox fique acima */
+.admin-item input {
+    z-index: 3;
+}
