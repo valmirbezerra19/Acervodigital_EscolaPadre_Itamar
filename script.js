@@ -184,14 +184,20 @@ const EVENTOS_ESCOLARES = [
 ];
 
 /* ================= INIT ================= */
-window.onload = () => {
+window.addEventListener("load", () => {
   setupYears();
   verificarLogin();
   gerarCalendario();
-  renderAll();
+
+  try {
+    renderAll();
+  } catch (e) {
+    console.error("Erro no renderAll:", e);
+  }
+
   setInterval(() => moveSlide(1), 5000);
   setInterval(updateClock, 1000);
-};
+});
 
 /* ================= LOGIN ================= */
 function clearAdminSession() {
@@ -291,7 +297,15 @@ async function uploadCloudinary() {
 async function renderAll() {
   try {
     const res = await fetch(`${API_URL}/items`);
+
+    // ✅ NOVO: valida resposta da API
+    if (!res.ok) throw new Error("Erro na API");
+
     const data = await res.json();
+
+    // ✅ NOVO: valida formato
+    if (!Array.isArray(data)) throw new Error("Resposta inválida");
+
     allItems = data;
     renderGaleria();
 
@@ -300,6 +314,7 @@ async function renderAll() {
       const slides = data
         .filter((i) => i.category === "SLIDE" || i.category === "SLIDE (HOME)")
         .slice(-7);
+
       track.innerHTML = slides.length
         ? slides.map((s) => `<img src="${s.imageUrl}">`).join("")
         : `<img src="IMG/escola.jpg">`;
