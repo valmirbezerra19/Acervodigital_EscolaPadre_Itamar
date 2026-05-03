@@ -11,6 +11,22 @@ let currentYear = "TODOS";
 
 // EVENTOS DO CALENDÁRIO ESCOLAR
 const EVENTOS_ESCOLARES = [
+  { data: "2026-04-05", titulo: "Início do 2º Bimestre e Conselho de Classe participativo nos respectivos horários" cat: "Pedagogico"},
+  { data: "2026-03-27", titulo: "Reunião Pedagógica", cat: "PEDAGÓGICO" },
+  { data: "2026-05-10", titulo: "Homenagem Dia das Mães", cat: "SOCIAL" },
+  { data: "2026-02-09", titulo: "Início do Ano Letivo", cat: "ACADÊMICO" },
+  { data: "2026-03-27", titulo: "Reunião Pedagógica", cat: "PEDAGÓGICO" },
+  { data: "2026-05-10", titulo: "Homenagem Dia das Mães", cat: "SOCIAL" },
+  { data: "2026-06-20", titulo: "Festa Junina", cat: "EVENTO" },
+  { data: "2026-09-07", titulo: "Desfile de Independência", cat: "CÍVICO" },
+  { data: "2026-02-09", titulo: "Início do Ano Letivo", cat: "ACADÊMICO" },
+  { data: "2026-03-27", titulo: "Reunião Pedagógica", cat: "PEDAGÓGICO" },
+  { data: "2026-05-10", titulo: "Homenagem Dia das Mães", cat: "SOCIAL" },
+  { data: "2026-02-09", titulo: "Início do Ano Letivo", cat: "ACADÊMICO" },
+  { data: "2026-03-27", titulo: "Reunião Pedagógica", cat: "PEDAGÓGICO" },
+  { data: "2026-05-10", titulo: "Homenagem Dia das Mães", cat: "SOCIAL" },
+  { data: "2026-06-20", titulo: "Festa Junina", cat: "EVENTO" },
+  { data: "2026-09-07", titulo: "Desfile de Independência", cat: "CÍVICO" },
   { data: "2026-02-09", titulo: "Início do Ano Letivo", cat: "ACADÊMICO" },
   { data: "2026-03-27", titulo: "Reunião Pedagógica", cat: "PEDAGÓGICO" },
   { data: "2026-05-10", titulo: "Homenagem Dia das Mães", cat: "SOCIAL" },
