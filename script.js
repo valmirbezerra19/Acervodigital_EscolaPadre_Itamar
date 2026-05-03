@@ -408,21 +408,14 @@ function renderGaleria() {
     .reverse()
     .map(
       (i) => `
-    <div class="gallery-card" style="background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.08); display: flex; flex-direction: column; transition: transform 0.2s;">
-      <!-- Imagem com altura fixa para manter o padrão -->
-      <img src="${i.imageUrl}" onclick="abrirImagemTelaCheia('${i.imageUrl}')" 
-           style="width: 100%; height: 220px; object-fit: cover; cursor: pointer;">
+    <div class="gallery-card">
+      <img src="${i.imageUrl}" onclick="abrirImagemTelaCheia('${i.imageUrl}')">
       
-      <!-- Área de Informações (Ano e Categoria) -->
-      <div style="padding: 20px; display: flex; flex-direction: column; gap: 10px; align-items: flex-start;">
-        
-        <!-- O Ano: Badge com borda azul -->
-        <span style="border: 2px solid #3498db; color: #3498db; font-weight: 800; padding: 4px 15px; border-radius: 10px; font-size: 20px; line-height: 1;">
+      <div class="card-content">
+        <span class="year-badge">
           ${i.year || '2026'}
         </span>
-        
-        <!-- A Categoria: Texto cinza em caixa alta -->
-        <p style="margin: 0; color: #95a5a6; font-weight: 700; text-transform: uppercase; font-size: 14px; letter-spacing: 1px;">
+        <p class="category-text">
           ${i.category || 'GERAL'}
         </p>
       </div>
