@@ -392,16 +392,27 @@ function renderGaleria() {
   if (currentYear !== "TODOS")
     filtrados = filtrados.filter((i) => String(i.year) === String(currentYear));
 
-  grid.innerHTML = filtrados
-    .reverse()
-    .map(
-      (i) => `
-    <div class="gallery-item">
-      <img src="${i.imageUrl}" onclick="abrirImagemTelaCheia('${i.imageUrl}')" style="cursor: pointer;">
-    </div>
-  `,
-    )
-    .join("");
+grid.innerHTML = filtrados
+  .reverse()
+  .map(
+    (i) => `
+      <div class="gallery-item">
+
+        <div class="card-img">
+          <img src="${i.imageUrl}" onclick="abrirImagemTelaCheia('${i.imageUrl}')">
+        </div>
+
+        <div class="card-body">
+          <span class="badge-ano">${i.year || "----"}</span>
+          <div class="card-cat">
+            ${(i.category || "").toUpperCase()}
+          </div>
+        </div>
+
+      </div>
+    `
+  )
+  .join("");
 }
 
 function filtrarCat(cat, btn) {
