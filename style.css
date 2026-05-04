@@ -147,7 +147,7 @@ h1, h2 {
 
 .carousel-track {
     display: flex;
-    transition: transform 0.8s ease;
+    transition: 0.8s ease;
     height: 100%;
 }
 
