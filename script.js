@@ -221,32 +221,22 @@ function gerarCalendario() {
   }).join("");
 }
 
- const grid = document.getElementById("main-grid");
-    if (grid) {
-      const catsGaleria = [
-        "ATIVIDADES",
-        "DESFILE",
-        "EVENTOS",
-        "INFRAESTRUTURA",
-        "HOMENAGEM",
-      ];
-      grid.innerHTML = data
-        .filter((x) => catsGaleria.includes(x.cat))
-        .filter((x) => filtroCatAtual === "TODAS" || x.cat === filtroCatAtual)
-        .filter((x) => filtroAnoAtual === "TODOS" || x.ano === filtroAnoAtual)
-        .reverse()
-        .map(
-          (item) => `
-          <div class="gallery-item">
-            <img src="${item.url}" loading="lazy" onclick="window.open('${item.url}')">
-            <div style="padding:15px">
-              <span class="badge-accent">${item.ano}</span>
-              <p style="font-size:0.75rem; font-weight:600; color:#7f8c8d">${item.cat}</p>
-            </div>
-          </div>`,
-        )
-        .join("");
-    }
+function renderGaleria() {
+  const grid = document.getElementById("main-grid");
+  if (!grid) return;
+  let filtrados = allItems.filter((i) =>
+    ["ATIVIDADES", "DESFILE", "EVENTOS", "INFRAESTRUTURA", "HOMENAGEM"].includes((i.category || "").toUpperCase()),
+  );
+  if (currentCat !== "TODAS") filtrados = filtrados.filter((i) => (i.category || "").toUpperCase() === currentCat);
+  if (currentYear !== "TODOS") filtrados = filtrados.filter((i) => String(i.year) === String(currentYear));
+
+  grid.innerHTML = filtrados.reverse().map((i) => `
+    <div class="gallery-item">
+      <img src="${i.imageUrl}" onclick="abrirImagemTelaCheia('${i.imageUrl}')" style="cursor: pointer;">
+    </div>
+  `).join("");
+}
+
 function filtrarCat(cat, btn) {
   currentCat = cat.toUpperCase();
   if (btn) {
