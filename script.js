@@ -319,7 +319,7 @@ async function renderAll() {
     if (sobre && document.getElementById("img-sobre-display"))
       document.getElementById("img-sobre-display").src = sobre.imageUrl;
 
-    const admin = document.getElementById("lista-admin");
+  const admin = document.getElementById("lista-admin");
     if (admin) {
       admin.innerHTML = data
         .map(
@@ -327,6 +327,11 @@ async function renderAll() {
         <div class="admin-item">
           <input type="checkbox" onchange="toggleSelect('${i._id || i.id}')">
           <img src="${i.imageUrl}">
+          <!-- BLOCO DE INFORMAÇÕES ADICIONADO ABAIXO -->
+          <div class="card-info" style="padding: 10px; gap: 4px; background: #fff;">
+            <span class="badge-year" style="font-size: 0.7rem;">${i.year || "---"}</span>
+            <p class="category-name" style="font-size: 0.6rem; color: #666;">${i.category || "GERAL"}</p>
+          </div>
         </div>
       `,
         )
