@@ -384,9 +384,9 @@ function renderGaleria() {
     <div class="gallery-item">
       <img src="${i.imageUrl || i.url}" onclick="abrirImagemTelaCheia('${i.imageUrl || i.url}')" style="cursor: pointer;">
       <div class="card-info">
-        <!-- Ajustado de .ano para .year e de .cat para .category -->
-        <span class="badge-year">${i.year}</span>
-        <p class="category-name">${i.category}</p>
+        <!--Trocamos ano por year e cat category -->
+        <span class="badge-year">${i.year || "2026"}</span>
+        <p class="category-name">${i.category || "GERAL"}</p>
       </div>
     </div>
   `,
