@@ -361,6 +361,7 @@ function gerarCalendario() {
 function renderGaleria() {
   const grid = document.getElementById("main-grid");
   if (!grid) return;
+  
   let filtrados = allItems.filter((i) =>
     [
       "ATIVIDADES",
@@ -370,10 +371,12 @@ function renderGaleria() {
       "HOMENAGEM",
     ].includes((i.category || "").toUpperCase()),
   );
+  
   if (currentCat !== "TODAS")
     filtrados = filtrados.filter(
       (i) => (i.category || "").toUpperCase() === currentCat,
     );
+    
   if (currentYear !== "TODOS")
     filtrados = filtrados.filter((i) => String(i.year) === String(currentYear));
 
@@ -384,9 +387,9 @@ function renderGaleria() {
     <div class="gallery-item">
       <img src="${i.imageUrl || i.url}" onclick="abrirImagemTelaCheia('${i.imageUrl || i.url}')" style="cursor: pointer;">
       <div class="card-info">
-        <!--Trocamos ano por year e cat category -->
+        <!-- CORREÇÃO AQUI: i.year em vez de i.ano e i.category em vez de i.cat -->
         <span class="badge-year">${i.year || "2026"}</span>
-        <p class="category-name">${i.category || "GERAL"}</p>
+        <p class="category-name">${i.category || "Geral"}</p>
       </div>
     </div>
   `,
