@@ -382,10 +382,11 @@ function renderGaleria() {
     .map(
       (i) => `
     <div class="gallery-item">
-      <img src="${i.url || i.imageUrl}" onclick="abrirModal(this)" style="cursor: pointer;">
+      <img src="${i.imageUrl || i.url}" onclick="abrirImagemTelaCheia('${i.imageUrl || i.url}')" style="cursor: pointer;">
       <div class="card-info">
-        <span class="badge-year">${i.ano}</span>
-        <p class="category-name">${i.cat}</p>
+        <!-- Ajustado de .ano para .year e de .cat para .category -->
+        <span class="badge-year">${i.year}</span>
+        <p class="category-name">${i.category}</p>
       </div>
     </div>
   `,
