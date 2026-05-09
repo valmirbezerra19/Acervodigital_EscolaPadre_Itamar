@@ -319,24 +319,25 @@ async function renderAll() {
     if (sobre && document.getElementById("img-sobre-display"))
       document.getElementById("img-sobre-display").src = sobre.imageUrl;
 
-  const admin = document.getElementById("lista-admin");
-    if (admin) {
-      admin.innerHTML = data
-        .map(
-          (i) => `
-        <div class="admin-item">
-          <input type="checkbox" onchange="toggleSelect('${i._id || i.id}')">
-          <img src="${i.imageUrl}">
-          <!-- BLOCO DE INFORMAÇÕES ADICIONADO ABAIXO -->
-          <div class="card-info" style="padding: 10px; gap: 4px; background: #fff;">
-            <span class="badge-year" style="font-size: 0.7rem;">${i.year || "---"}</span>
-            <p class="category-name" style="font-size: 0.6rem; color: #666;">${i.category || "GERAL"}</p>
-          </div>
-        </div>
-      `,
-        )
-        .join("");
-    }
+ const admin = document.getElementById("lista-admin");
+if (admin) {
+  admin.innerHTML = data
+    .map(
+      (i) => `
+    <div class="admin-item" style="position: relative;">
+      <input type="checkbox" onchange="toggleSelect('${i._id || i.id}')" style="position: absolute; top: 5px; right: 5px; z-index: 10;">
+      <img src="${i.imageUrl}" style="width: 100%; display: block;">
+      
+      <!-- ESTE BLOCO ABAIXO PRECISA APARECER -->
+      <div class="admin-info-overlay" style="padding: 5px; background: rgba(255,255,255,0.9); border-top: 1px solid #eee;">
+         <div style="color: #2980b9; font-weight: bold; font-size: 11px;">${i.year || "---"}</div>
+         <div style="color: #666; font-size: 10px; text-transform: uppercase;">${i.category || "Geral"}</div>
+      </div>
+    </div>
+  `,
+    )
+    .join("");
+}
   } catch (error) {
     console.error("Erro ao renderizar itens:", error);
   }
