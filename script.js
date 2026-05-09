@@ -382,7 +382,11 @@ function renderGaleria() {
     .map(
       (i) => `
     <div class="gallery-item">
-      <img src="${i.imageUrl}" onclick="abrirImagemTelaCheia('${i.imageUrl}')" style="cursor: pointer;">
+      <img src="${i.url || i.imageUrl}" onclick="abrirModal(this)" style="cursor: pointer;">
+      <div class="card-info">
+        <span class="badge-year">${i.ano}</span>
+        <p class="category-name">${i.cat}</p>
+      </div>
     </div>
   `,
     )
