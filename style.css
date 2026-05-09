@@ -137,12 +137,14 @@ h1, h2 {
 
 /* Carrossel e Home */
 .carousel-wrapper {
-    height: 600px;
-    /* Ajustado para melhor visualização */
+    height: auto;
+    /* Ajustado para melhor visualização 10cm por 15cm*/
+    aspect-ratio: 1.5 /1;
     overflow: hidden;
     position: relative;
     border-radius: 20px;
     z-index: 1;
+    box-shadow: var(--shadow);
 }
 
 .carousel-track {
