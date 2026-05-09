@@ -236,6 +236,7 @@ h1, h2 {
     box-shadow: var(--shadow);
     display: flex;
     flex-direction: column;
+    transition: transform 0.3s ease;
 }
 
 .gallery-item img {
